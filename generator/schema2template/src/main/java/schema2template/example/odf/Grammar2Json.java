@@ -15,18 +15,9 @@
  */
 package schema2template.example.odf;
 
-import com.sun.msv.grammar.AttributeExp;
-import com.sun.msv.grammar.ElementExp;
-import com.sun.msv.grammar.Expression;
-import com.sun.msv.grammar.Grammar;
-import com.sun.msv.grammar.ReferenceExp;
-import com.sun.msv.grammar.SimpleNameClass;
+import com.sun.msv.grammar.*;
 import com.sun.msv.grammar.util.ExpressionWalker;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import schema2template.model.PuzzlePiece;
@@ -54,8 +45,8 @@ public class Grammar2Json {
   final Set<Expression> refHeads = new HashSet<>();
 
   // all paths of one node
-  private final List<JSONObject> descendantList = new ArrayList<JSONObject>();
-  private final List<String> descendantNameList = new ArrayList<String>();
+  private final List<JSONObject> parentList = new ArrayList<JSONObject>();
+  private final List<Object> childContainerByDepth = new ArrayList<Object>();
   private JSONObject jsonGrammar = null;
 
   public Grammar2Json(Grammar g) {
@@ -65,13 +56,16 @@ public class Grammar2Json {
   public JSONObject getJSON() {
     try {
       if (jsonGrammar == null) {
-        // jsonGrammar = new JSONObject();
-        // jsonGrammar.put("root", new JSONObject());
+        jsonGrammar = new JSONObject();
+        JSONObject parent = new JSONObject();
+        jsonGrammar.put("grammar", parent);
+        parentList.add(parent);
+        childContainerByDepth.add(parent);
         initialize();
       }
       return jsonGrammar;
     } catch (Throwable e) {
-      System.err.println("ERROR: HERE IS THE jsonGrammar\n" + jsonGrammar.toString(4));
+      System.err.println("ERROR: HERE IS THE jsonGrammar\n" + jsonGrammar.toString(2));
       throw new RuntimeException(e);
     }
   }
@@ -101,7 +95,8 @@ public class Grammar2Json {
                   evaluatePattern(exp);
                   super.onElement(exp);
                   // once we come up an element, it is finished and can be removed from cache!
-                  descendantList.remove(elementDepth);
+                  parentList.remove(elementDepth);
+                  childContainerByDepth.remove(elementDepth);
                   elementDepth--;
                 }
               }
@@ -110,7 +105,7 @@ public class Grammar2Json {
               public void onAttribute(AttributeExp exp) {
                 String attrName = PuzzlePiece.getName(exp);
                 // System.out.println("AttributeName: " + attrName);
-                addChildNode("@" + attrName, null);
+                addChildNode("@" + attrName, true);
                 // Values are not of interest for now
                 //                if (exp.exp instanceof ValueExp) {
                 //                    // System.out.println("style:family-1" + ((ValueExp)
@@ -166,92 +161,89 @@ public class Grammar2Json {
               private void evaluatePattern(ElementExp exp) {
                 // System.out.println("depth:" + depth);
                 if (!(exp.getNameClass() instanceof SimpleNameClass)) {
-                  return;
+                  return; // can there be multiple names?
                 }
                 String elementName = ((SimpleNameClass) exp.getNameClass()).localName;
                 if (elementName.equals("CrossIndustryInvoice")) {
                   System.out.println("hit");
                 }
-                JSONObject newElement = new JSONObject();
                 JSONObject parent = null;
                 // a new depth was reached an the element is the first child element
-                if (elementDepth == 0 && jsonGrammar == null) {
-                  // in the very beginning asign first Element to our root element
-                  jsonGrammar = new JSONObject();
-                  jsonGrammar.put(elementName, newElement);
-                  // no container from above is being taken as we are the first
-                  // but we add ourselves as it would be a new child hierarchy
-                  // descendantList.add(jsonGrammar);
+                // if there is a new child hierarchy - e.g. depth 1 is first under root element
+                if (elementDepth == (parentList.size()) - 1) {
+                  // get the last element
+                  parent = parentList.get(elementDepth);
+                  // add the new element to the parent
+                  JSONObject newChildNodeBody = new JSONObject();
+                  parent.put(elementName, newChildNodeBody);
+
+                  // add the new element as new hierarchy
+                  parentList.add(newChildNodeBody);
+                  childContainerByDepth.add(newChildNodeBody);
+                } else { // if this element is a sibling
+                  // always one child, either a single element map or the array of children
+                  /*
+                  descendantList.remove(elementDepth);
                   descendantList.add(newElement);
+                  descendantNameList.add(elementDepth);
                   descendantNameList.add(elementName);
-                } else {
-                  // if there is a new child hierarchy
-                  if (elementDepth == (descendantList.size())) {
-                    // get the parent
-                    if (elementDepth == 0) {
-                      parent = jsonGrammar;
-                    } else {
-                      parent = descendantList.get(elementDepth - 1);
-                    }
-                    // add the new element to the parent
-                    parent.put(elementName, newElement);
-                    // add the new element as new hierarchy
-                    descendantList.add(newElement);
-                    descendantNameList.add(elementName);
-                  } else { // if this element is a sibling
-                    // always one child, either a single element map or the array of children
-                    /*
-                    descendantList.remove(elementDepth);
-                    descendantList.add(newElement);
-                    descendantNameList.add(elementDepth);
-                    descendantNameList.add(elementName);
-                    */
-                    addChildNode(elementName, newElement);
-                  }
+                  */
+                  parentList.remove(elementDepth);
+                  parentList.add(addChildNode(elementName, false));
                 }
+
                 // System.out.println("ELEMENT NameClass: " + exp.getNameClass().toString());
                 // //SvanteDebug
               }
 
-              // either an attribute or element will be added to the JSONMap of the parent
+              // either an attribute or newElement will be added to the JSONMap of the parent
               // there is already one child, if this is a
-              private void addChildNode(String childName, JSONObject element) {
+
+              /**
+               * @param childName
+               * @param isAttribute
+               * @return neu hinzugefügtes element's body
+               */
+              private JSONObject addChildNode(String childName, boolean isAttribute) {
+                JSONObject newChildNodeBody = null;
                 if (childName == null || childName.isEmpty()) {
                   System.err.println("ERROR: childName does not exist!");
                 }
-                String childKey = descendantNameList.get(elementDepth);
-                JSONObject parent;
-                // get the parent container
-                if (elementDepth == 0) {
-                  parent = jsonGrammar;
+                Object container = null;
+                if (isAttribute) {
+                  container = childContainerByDepth.get(elementDepth + 1);
                 } else {
-                  parent = descendantList.get(elementDepth - 1);
+                  container = childContainerByDepth.get(elementDepth);
                 }
-                Object child = parent.get(childKey);
-                // already child array simply append
-                if (child instanceof JSONArray) {
-                  if (element == null) {
-                    // as attribute simply add only the attribute name
-                    ((JSONArray) child).put(childName);
-                  } else { // add the complete element
-                    ((JSONArray) child).put(element);
-                  }
-                } else { // exchange the existing JSONObject child with an JSONArray
-                  if (!(child instanceof JSONObject)) {
-                    System.err.println("ERRROR: Child is expected to be a JSONObject!");
-                  }
-                  parent.remove(childKey);
-                  JSONArray childContainer = new JSONArray();
-                  childContainer.put(child);
-                  parent.put(childKey, childContainer);
 
-                  if (element == null) {
-                    // as attribute simply add only the attribute name
-                    childContainer.put(childName);
-                  } else { // add the complete element
-                    childContainer.put(element);
+                JSONObject parent = (JSONObject) parentList.get(elementDepth);
+                // already container array simply append
+                if (container instanceof JSONObject && ((JSONObject) container).length() == 0) {
+                  ((JSONObject) container).put(childName, new JSONObject());
+                } else if (container instanceof JSONArray) {
+                  JSONObject newChildNode = new JSONObject();
+                  newChildNodeBody = new JSONObject();
+                  newChildNode.put(childName, newChildNodeBody);
+                  ((JSONArray) container).put(newChildNode);
+                } else { // exchange the existing JSONObject container with an JSONArray
+                  if (!(container instanceof JSONObject)) {
+                    System.err.println("ERROR: Child is expected to be a JSONObject!");
                   }
+                  childContainerByDepth.remove(elementDepth);
+                  JSONArray childContainer = new JSONArray();
+                  Iterator iter = ((JSONObject) container).keys();
+                  String key = (String) iter.next();
+                  // JSONObject firstNode = (JSONObject) ((JSONObject) container).get(key);
+                  JSONObject firstNode = (JSONObject) ((JSONObject) container).remove(key);
+                  ((JSONObject) container).put("", childContainer);
+                  childContainer.put(firstNode);
+                  childContainerByDepth.add(childContainer);
+                  JSONObject newChildNode = new JSONObject();
+                  newChildNodeBody = new JSONObject();
+                  newChildNode.put(childName, newChildNodeBody);
+                  childContainer.put(newChildNode);
                 }
+                return newChildNodeBody;
               }
             });
   }
