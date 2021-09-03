@@ -18,6 +18,7 @@ package schema2template.example.odf;
 import com.sun.msv.grammar.*;
 import com.sun.msv.grammar.util.ExpressionWalker;
 import java.util.*;
+import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import schema2template.model.PuzzlePiece;
@@ -35,6 +36,7 @@ import schema2template.model.PuzzlePiece;
  */
 public class Grammar2Json {
 
+  private static final Logger LOG = Logger.getLogger(Grammar2Json.class.getName());
   private Grammar mGrammar;
 
   // collect all reachable ElementExps and ReferenceExps.
@@ -105,52 +107,57 @@ public class Grammar2Json {
                   elementNodes.add(exp);
                   elementDepth++;
 
-                  System.out.println(
-                      "before evaluating new ElementChildren: parentList: "
-                          + parentList.toString());
-                  System.out.println("ElementDepth: " + elementDepth);
+                  // DEBUG System.out.println("before evaluating new ElementChildren: parentList: "+
+                  // parentList.toString());
+                  // DEBUG System.out.println("ElementDepth: " + elementDepth);
 
                   evaluatePattern(exp);
 
-                  // System.out.println("BEFORE CHECKING ON ELEMENT CONTENT previousDepth is now
+                  // //DEBUG System.out.println("BEFORE CHECKING ON ELEMENT CONTENT previousDepth is
+                  // now
                   // element Depth!");
                   previousDepth = elementDepth;
 
-                  System.out.println("beforeElementChildren: parentList: " + parentList.toString());
-                  System.out.println(
-                      "beforeElementChildren: parentList.size(): " + parentList.size());
-                  System.out.println("  ");
+                  // DEBUG System.out.println("beforeElementChildren: parentList: " +
+                  // parentList.toString());
+                  // DEBUG System.out.println("beforeElementChildren: parentList.size(): " +
+                  // parentList.size());
+                  // DEBUG System.out.println("  ");
 
                   super.onElement(exp);
 
                   // once we come up an element, it is finished and can be removed from cache!
-                  System.out.println("  ");
-                  System.out.println("afterelement1: previousDepth: " + previousDepth);
-                  System.out.println("afterelement1: ElementDepth: " + elementDepth);
-                  System.out.println("afterelement1: parentList.size(): " + parentList.size());
-                  System.out.println("afterelement1: parentList: " + parentList.toString());
-                  System.out.println("  ");
+                  // DEBUG System.out.println("  ");
+                  // DEBUG System.out.println("afterelement1: previousDepth: " + previousDepth);
+                  // DEBUG System.out.println("afterelement1: ElementDepth: " + elementDepth);
+                  // DEBUG System.out.println("afterelement1: parentList.size(): " +
+                  // parentList.size());
+                  // DEBUG System.out.println("afterelement1: parentList: " +
+                  // parentList.toString());
+                  // DEBUG System.out.println("  ");
 
                   // REMOVE LAST, but not after the end of a sibling element, but only after the end
                   // of a child element..
                   // 2 zu 1 -> 4 index liegen vor, der letze #3 muss gelöscht werden!
                   if (previousDepth > elementDepth) {
-                    System.out.println("beforeRemoval:" + parentList.toString());
+                    // DEBUG System.out.println("beforeRemoval:" + parentList.toString());
                     // i = 4 ; 3;
-                    System.out.println("i = previous + 2 =  " + (previousDepth + 2));
-                    System.out.println("end  = elementDepth + 2 =  " + (elementDepth + 2));
+                    // DEBUG System.out.println("i = previous + 2 =  " + (previousDepth + 2));
+                    // DEBUG System.out.println("end  = elementDepth + 2 =  " + (elementDepth + 2));
                     for (int i = (previousDepth + 1); (elementDepth + 1) < i; i--) {
-                      System.out.println("Removing index " + i);
+                      // DEBUG System.out.println("Removing index " + i);
                       parentList.remove(i);
                     }
-                    System.out.println("afterRemoval:" + parentList.toString());
+                    // DEBUG System.out.println("afterRemoval:" + parentList.toString());
                   }
                   previousDepth = elementDepth;
-                  System.out.println("afterelement2: previousDepth: " + previousDepth);
-                  System.out.println("afterelement2: ElementDepth: " + elementDepth);
-                  System.out.println("afterelement2: parentList.size(): " + parentList.size());
-                  System.out.println("afterelement2: parentList: " + parentList.toString());
-                  System.out.println("++++++ENDING ELEMENT");
+                  // DEBUG System.out.println("afterelement2: previousDepth: " + previousDepth);
+                  // DEBUG System.out.println("afterelement2: ElementDepth: " + elementDepth);
+                  // DEBUG System.out.println("afterelement2: parentList.size(): " +
+                  // parentList.size());
+                  // DEBUG System.out.println("afterelement2: parentList: " +
+                  // parentList.toString());
+                  // DEBUG System.out.println("++++++ENDING ELEMENT");
 
                   elementDepth--;
                 }
@@ -159,18 +166,18 @@ public class Grammar2Json {
               @Override
               public void onAttribute(AttributeExp exp) {
                 String attrName = PuzzlePiece.getName(exp);
-                // System.out.println("AttributeName: " + attrName);
+                // //DEBUG System.out.println("AttributeName: " + attrName);
                 addChildNode("@" + attrName, true);
                 // Values are not of interest for now
                 //                if (exp.exp instanceof ValueExp) {
-                //                    // System.out.println("style:family-1" + ((ValueExp)
+                //                    // //DEBUG System.out.println("style:family-1" + ((ValueExp)
                 // exp.exp).value.toString());
                 //                    addChildNode(parent, ((ValueExp) exp.exp).value.toString());
                 //                } else if (exp.exp instanceof ChoiceExp) {
-                //                    // System.out.println("style:family-A" + ((ValueExp)
+                //                    // //DEBUG System.out.println("style:family-A" + ((ValueExp)
                 // ((ChoiceExp)
                 //                    // exp.exp).exp1).value.toString());
-                //                    // System.out.println("style:family-B" + ((ValueExp)
+                //                    // //DEBUG System.out.println("style:family-B" + ((ValueExp)
                 // ((ChoiceExp)
                 //                    // exp.exp).exp2).value.toString());
                 //                    addChildNode(parent, ((ValueExp) ((ChoiceExp)
@@ -178,7 +185,8 @@ public class Grammar2Json {
                 //                    addChildNode(parent, ((ValueExp) ((ChoiceExp)
                 // exp.exp).exp2).value.toString());
                 //                } else {
-                //                    // System.out.println("NOT FAMILY '" + attrName + "'");
+                //                    // //DEBUG System.out.println("NOT FAMILY '" + attrName +
+                // "'");
                 //                    /*
                 //         * <rng:attribute name="style:family"> <rng:choice>
                 //         * <rng:value>graphic</rng:value> <rng:value>presentation</rng:value>
@@ -192,7 +200,7 @@ public class Grammar2Json {
               @Override
               public void onRef(ReferenceExp exp) {
                 String refName = ((ReferenceExp) exp).name;
-                // System.out.println("REF NAME" + refName);
+                // //DEBUG System.out.println("REF NAME" + refName);
                 // we will allow two times nested refs, but than we break
                 if (refNodes.contains(exp)) {
                   if (refHeads.contains(exp)) {
@@ -214,7 +222,7 @@ public class Grammar2Json {
               }
 
               private void evaluatePattern(ElementExp exp) {
-                // System.out.println("depth:" + depth);
+                // //DEBUG System.out.println("depth:" + depth);
                 if ((exp.getNameClass() instanceof SimpleNameClass)
                     || (exp.getNameClass() instanceof AnyNameClass)
                     || (exp.getNameClass() instanceof ChoiceNameClass)) {
@@ -229,21 +237,18 @@ public class Grammar2Json {
                   if (elementName.equals("description")) {
                     // System.err.println("BREAK!!: HERE IS THE jsonGrammar\n" +
                     // jsonGrammar.toString(2));
-                    System.out.println("hit");
+                    // DEBUG System.out.println("hit");
                   }
                   JSONObject parent = null;
                   // a new depth was reached and the element is the first child element
                   // if there is a new child hierarchy - e.g. depth 1 is first under root element
-                  System.out.println("---------------------------");
-                  System.out.println("previousDepth: " + previousDepth);
-                  System.out.println("ElementDepth: " + elementDepth);
-                  System.out.println("parentList.size(): " + parentList.size());
-                  System.out.println(
-                      "ElementName: "
-                          + elementName
-                          + " the next Map is empty: "
-                          + (elementDepth + 1
-                              == parentList.size())); //  parentList.get(elementDepth +1 ));
+                  // DEBUG System.out.println("---------------------------");
+                  // DEBUG System.out.println("previousDepth: " + previousDepth);
+                  // DEBUG System.out.println("ElementDepth: " + elementDepth);
+                  // DEBUG System.out.println("parentList.size(): " + parentList.size());
+                  // DEBUG System.out.println("ElementName: "+ elementName+ " the next Map is empty:
+                  // "+ (elementDepth + 1 == parentList.size())); //  parentList.get(elementDepth +1
+                  // ));
                   if (elementDepth > previousDepth) {
                     // get the last element
                     parent = parentList.get(elementDepth);
@@ -256,16 +261,16 @@ public class Grammar2Json {
                     // childContainerByDepth.add(newChildNodeBody);
                   } else { // if this element is a sibling
                     // always one child, either a single element map or the array of children
-                    System.out.println("previousDepth: " + previousDepth);
-                    System.out.println("ElementDepth: " + elementDepth);
-                    System.out.println(
-                        "new siblingyeah1!" + parentList.size() + " " + parentList.toString());
+                    // DEBUG System.out.println("previousDepth: " + previousDepth);
+                    // DEBUG System.out.println("ElementDepth: " + elementDepth);
+                    // DEBUG System.out.println("new siblingyeah1!" + parentList.size() + " " +
+                    // parentList.toString());
                     // this sibling element's map is the new map on this level (the earlier at the
                     // end, have to be removed)
                     parentList.remove(elementDepth + 1);
                     parentList.add(elementDepth + 1, addChildNode(elementName, false));
-                    System.out.println(
-                        "new siblingyeah2!" + parentList.size() + " " + parentList.toString());
+                    // DEBUG System.out.println("new siblingyeah2!" + parentList.size() + " " +
+                    // parentList.toString());
                   }
                 } else {
                   NameClass nc = exp.getNameClass();

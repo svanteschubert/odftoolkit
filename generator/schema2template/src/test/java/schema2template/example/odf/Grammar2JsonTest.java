@@ -17,7 +17,9 @@ package schema2template.example.odf;
 
 import com.sun.msv.grammar.Grammar;
 import java.io.File;
+import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -30,6 +32,8 @@ import schema2template.model.XMLModel;
 /** @author Svante Schubert */
 public class Grammar2JsonTest {
 
+  private static final Logger LOG = Logger.getLogger(Grammar2JsonTest.class.getName());
+
   //  private static final String EXPECTED_CII_16B_RESULT = "";
   //  private static final String EXPECTED_CII_21A_RESULT = "";
   //  private static final String EXPECTED_UBL_1_2_INVOICE_RESULT = "";
@@ -39,18 +43,37 @@ public class Grammar2JsonTest {
 
   private static final String GRAMMAR_FILE_ROOT =
       "examples" + File.separator + "eprocurement" + File.separator;
+  /*  private static final String CII_21A_GRAMMAR =
+        "examples"
+            + File.separator
+            + "odf"
+            + File.separator
+            + "odf-schemas"
+            + File.separator
+            + "OpenDocument-v1.3-schema.rng";
+  */
   private static final String CII_21A_GRAMMAR =
-      "examples"
+      GRAMMAR_FILE_ROOT
+          + "cii"
           + File.separator
-          + "odf"
+          + "21A"
           + File.separator
-          + "odf-schemas"
+          + "uncefact"
           + File.separator
-          + "OpenDocument-v1.3-schema.rng";
+          + "data"
+          + File.separator
+          + "standard"
+          + File.separator
+          + "CrossIndustryInvoice_21p1.xsd";
 
-  // private static final String CII_21A_GRAMMAR = GRAMMAR_FILE_ROOT + "cii" + File.separator +
-  // "21A" + File.separator + "uncefact" + File.separator + "data" + File.separator + "standard" +
-  // File.separator + "CrossIndustryInvoice_21p1.xsd";
+  private static String TARGET_BASE_DIR =
+      "target" + File.separator + "generated-sources" + File.separator + "java" + File.separator;
+
+  private static String TARGET_CII_21A =
+      Paths.get(System.getProperty("user.dir"), TARGET_BASE_DIR, "CII_21A.json")
+          .normalize()
+          .toString();
+
   private static final String CII_16B_GRAMMAR = "";
   private static final String UBL_1_2_INVOICE_GRAMMAR = "";
   private static final String UBL_1_2_CREDIT_NOTE_GRAMMAR = "";
@@ -76,8 +99,13 @@ public class Grammar2JsonTest {
   public void testGetProperties() throws Exception {
     Grammar g = XMLModel.loadSchema(getAbsolutePathFromClassloader(CII_21A_GRAMMAR));
     Grammar2Json instance = new Grammar2Json(g);
-    System.out.println("JSON GRAMMAR:\n" + instance.getJSON().toString(4));
+    String grammarJSON = instance.getJSON().toString(4);
+    System.out.println("JSON GRAMMAR:\n" + grammarJSON);
 
+    ensureParentFolders(TARGET_CII_21A);
+    try (PrintWriter out = new PrintWriter(TARGET_CII_21A)) {
+      out.println(grammarJSON);
+    }
     //    if (!EXPECTED_CII_16B_RESULT.equals(result))
     //      fail("The reference and test result differ:\nExpected:\n" + EXPECTED_CII_16B_RESULT +
     // "\nTest:\n" + result);
@@ -91,5 +119,17 @@ public class Grammar2JsonTest {
       Logger.getLogger(SchemaToTemplate.class.getName()).log(Level.SEVERE, null, ex);
     }
     return path;
+  }
+
+  private static void ensureParentFolders(String outputFilePath) {
+    File newFile = new File(outputFilePath);
+    File parent = newFile.getParentFile();
+    if (parent != null && !parent.exists()) {
+      try {
+        parent.mkdirs();
+      } catch (Exception e) {
+        LOG.log(Level.WARNING, "Could not create parent directory {0}", parent.getAbsolutePath());
+      }
+    }
   }
 }
