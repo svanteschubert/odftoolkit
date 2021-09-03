@@ -22,11 +22,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import schema2template.model.XMLModel;
 
 /** @author Svante Schubert */
@@ -34,24 +30,18 @@ public class Grammar2JsonTest {
 
   private static final Logger LOG = Logger.getLogger(Grammar2JsonTest.class.getName());
 
-  //  private static final String EXPECTED_CII_16B_RESULT = "";
-  //  private static final String EXPECTED_CII_21A_RESULT = "";
-  //  private static final String EXPECTED_UBL_1_2_INVOICE_RESULT = "";
-  //  private static final String EXPECTED_UBL_1_2_CREDIT_NOTE_RESULT = "";
-  //  private static final String EXPECTED_UBL_1_3_INVOICE_RESULT = "";
-  //  private static final String EXPECTED_UBL_1_3_CREDIT_NOTE_RESULT = "";
-
   private static final String GRAMMAR_FILE_ROOT =
       "examples" + File.separator + "eprocurement" + File.separator;
-  /*  private static final String CII_21A_GRAMMAR =
-        "examples"
-            + File.separator
-            + "odf"
-            + File.separator
-            + "odf-schemas"
-            + File.separator
-            + "OpenDocument-v1.3-schema.rng";
-  */
+
+  private static final String ODF13_GRAMMAR =
+      "examples"
+          + File.separator
+          + "odf"
+          + File.separator
+          + "odf-schemas"
+          + File.separator
+          + "OpenDocument-v1.3-schema.rng";
+
   private static final String CII_21A_GRAMMAR =
       GRAMMAR_FILE_ROOT
           + "cii"
@@ -66,19 +56,76 @@ public class Grammar2JsonTest {
           + File.separator
           + "CrossIndustryInvoice_21p1.xsd";
 
+  private static final String CII_16B_GRAMMAR =
+      GRAMMAR_FILE_ROOT
+          + "cii"
+          + File.separator
+          + "16B"
+          + File.separator
+          + "uncefact"
+          + File.separator
+          + "data"
+          + File.separator
+          + "standard"
+          + File.separator
+          + "CrossIndustryInvoice_100pD16B.xsd";
+
+  private static final String UBL_2_1_INVOICE_GRAMMAR =
+      GRAMMAR_FILE_ROOT
+          + "ubl"
+          + File.separator
+          + "UBL-2.1"
+          + File.separator
+          + "xsd"
+          + File.separator
+          + "maindoc"
+          + File.separator
+          + "UBL-Invoice-2.1.xsd";
+
+  private static final String UBL_2_1_CREDIT_NOTE_GRAMMAR =
+      GRAMMAR_FILE_ROOT
+          + "ubl"
+          + File.separator
+          + "UBL-2.1"
+          + File.separator
+          + "xsd"
+          + File.separator
+          + "maindoc"
+          + File.separator
+          + "UBL-CreditNote-2.1.xsd";
+
+  private static final String UBL_2_2_INVOICE_GRAMMAR = "";
+  private static final String UBL_2_2_CREDIT_NOTE_GRAMMAR = "";
+  private static final String UBL_2_3_INVOICE_GRAMMAR = "";
+  private static final String UBL_2_3_CREDIT_NOTE_GRAMMAR = "";
+
   private static String TARGET_BASE_DIR =
       "target" + File.separator + "generated-sources" + File.separator + "java" + File.separator;
+
+  private static String TARGET_ODF13 =
+      Paths.get(System.getProperty("user.dir"), TARGET_BASE_DIR, "ODF13.json")
+          .normalize()
+          .toString();
 
   private static String TARGET_CII_21A =
       Paths.get(System.getProperty("user.dir"), TARGET_BASE_DIR, "CII_21A.json")
           .normalize()
           .toString();
 
-  private static final String CII_16B_GRAMMAR = "";
-  private static final String UBL_1_2_INVOICE_GRAMMAR = "";
-  private static final String UBL_1_2_CREDIT_NOTE_GRAMMAR = "";
-  private static final String UBL_1_3_INVOICE_GRAMMAR = "";
-  private static final String UBL_1_3_CREDIT_NOTE_GRAMMAR = "";
+  private static String TARGET_CII_16B =
+      Paths.get(System.getProperty("user.dir"), TARGET_BASE_DIR, "CII_16B.json")
+          .normalize()
+          .toString();
+
+  private static String TARGET_UBL21_CREDIT_NOTE =
+      Paths.get(System.getProperty("user.dir"), TARGET_BASE_DIR, "UBL-CreditNote-2.1.json")
+          .normalize()
+          .toString();
+
+  private static String TARGET_UBL21_INVOICE =
+      Paths.get(System.getProperty("user.dir"), TARGET_BASE_DIR, "UBL-Invoice-2.1.json")
+          .normalize()
+          .toString();
 
   public Grammar2JsonTest() {}
 
@@ -94,21 +141,73 @@ public class Grammar2JsonTest {
   @After
   public void tearDown() {}
 
-  /** Test of getProperties method, of class Grammar2Json. */
+  /** Test Grammar2Json for a certain grammar */
   @Test
-  public void testGetProperties() throws Exception {
+  @Ignore
+  public void testODF13() throws Exception {
+    Grammar g = XMLModel.loadSchema(getAbsolutePathFromClassloader(ODF13_GRAMMAR));
+    Grammar2Json instance = new Grammar2Json(g);
+    String grammarJSON = instance.getJSON().toString(4);
+    // System.out.println("JSON GRAMMAR:\n" + grammarJSON);
+    ensureParentFolders(TARGET_ODF13);
+    try (PrintWriter out = new PrintWriter(TARGET_ODF13)) {
+      out.println(grammarJSON);
+    }
+  }
+
+  /** Test Grammar2Json for a certain grammar */
+  @Test
+  @Ignore
+  public void testCII_21A() throws Exception {
     Grammar g = XMLModel.loadSchema(getAbsolutePathFromClassloader(CII_21A_GRAMMAR));
     Grammar2Json instance = new Grammar2Json(g);
     String grammarJSON = instance.getJSON().toString(4);
-    System.out.println("JSON GRAMMAR:\n" + grammarJSON);
-
+    // System.out.println("JSON GRAMMAR:\n" + grammarJSON);
     ensureParentFolders(TARGET_CII_21A);
     try (PrintWriter out = new PrintWriter(TARGET_CII_21A)) {
       out.println(grammarJSON);
     }
-    //    if (!EXPECTED_CII_16B_RESULT.equals(result))
-    //      fail("The reference and test result differ:\nExpected:\n" + EXPECTED_CII_16B_RESULT +
-    // "\nTest:\n" + result);
+  }
+
+  /** Test Grammar2Json for a certain grammar */
+  @Test
+  @Ignore
+  public void testCII_16B() throws Exception {
+    Grammar g = XMLModel.loadSchema(getAbsolutePathFromClassloader(CII_16B_GRAMMAR));
+    Grammar2Json instance = new Grammar2Json(g);
+    String grammarJSON = instance.getJSON().toString(4);
+    // System.out.println("JSON GRAMMAR:\n" + grammarJSON);
+    ensureParentFolders(TARGET_CII_16B);
+    try (PrintWriter out = new PrintWriter(TARGET_CII_16B)) {
+      out.println(grammarJSON);
+    }
+  }
+
+  /** Test Grammar2Json for a certain grammar */
+  @Test
+  @Ignore
+  public void testUBL12_CreditNote() throws Exception {
+    Grammar g = XMLModel.loadSchema(getAbsolutePathFromClassloader(UBL_2_1_CREDIT_NOTE_GRAMMAR));
+    Grammar2Json instance = new Grammar2Json(g);
+    String grammarJSON = instance.getJSON().toString(4);
+    // System.out.println("JSON GRAMMAR:\n" + grammarJSON);
+    ensureParentFolders(TARGET_UBL21_CREDIT_NOTE);
+    try (PrintWriter out = new PrintWriter(TARGET_UBL21_CREDIT_NOTE)) {
+      out.println(grammarJSON);
+    }
+  }
+
+  /** Test Grammar2Json for a certain grammar */
+  @Test
+  public void testUBL12_Invoice() throws Exception {
+    Grammar g = XMLModel.loadSchema(getAbsolutePathFromClassloader(UBL_2_1_INVOICE_GRAMMAR));
+    Grammar2Json instance = new Grammar2Json(g);
+    String grammarJSON = instance.getJSON().toString(4);
+    // System.out.println("JSON GRAMMAR:\n" + grammarJSON);
+    ensureParentFolders(TARGET_UBL21_INVOICE);
+    try (PrintWriter out = new PrintWriter(TARGET_UBL21_INVOICE)) {
+      out.println(grammarJSON);
+    }
   }
 
   private static String getAbsolutePathFromClassloader(String resourcePath) {
