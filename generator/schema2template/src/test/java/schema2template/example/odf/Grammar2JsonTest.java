@@ -122,6 +122,11 @@ public class Grammar2JsonTest {
           .normalize()
           .toString();
 
+  private static String TARGET_UBL21_INVOICE_RNG =
+      Paths.get(System.getProperty("user.dir"), TARGET_BASE_DIR, "UBL-Invoice-2.1.rng")
+          .normalize()
+          .toString();
+
   private static String TARGET_UBL21_INVOICE =
       Paths.get(System.getProperty("user.dir"), TARGET_BASE_DIR, "UBL-Invoice-2.1.json")
           .normalize()
@@ -201,6 +206,14 @@ public class Grammar2JsonTest {
   @Test
   public void testUBL12_Invoice() throws Exception {
     Grammar g = XMLModel.loadSchema(getAbsolutePathFromClassloader(UBL_2_1_INVOICE_GRAMMAR));
+    /*
+     ensureParentFolders(TARGET_UBL21_INVOICE_RNG);
+    try (FileOutputStream out = new FileOutputStream(TARGET_UBL21_INVOICE_RNG)) {
+      //out.println(grammarJSON);
+      XMLModel.writeGrammar( g, out);
+    }
+    */
+
     Grammar2Json instance = new Grammar2Json(g);
     String grammarJSON = instance.getJSON().toString(4);
     // System.out.println("JSON GRAMMAR:\n" + grammarJSON);
