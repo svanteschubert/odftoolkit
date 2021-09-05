@@ -41,6 +41,7 @@ import schema2template.model.MSVExpressionIterator;
 import schema2template.model.PuzzlePiece;
 import schema2template.model.PuzzlePieceSet;
 
+@Ignore
 public class PuzzlePieceTest {
 
   private static final Logger LOG = Logger.getLogger(PuzzlePieceTest.class.getName());

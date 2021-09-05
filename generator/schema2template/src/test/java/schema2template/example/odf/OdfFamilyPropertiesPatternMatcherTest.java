@@ -22,6 +22,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /** @author Niemand */
@@ -57,6 +58,7 @@ public class OdfFamilyPropertiesPatternMatcherTest {
 
   /** Test of getProperties method, of class OdfFamilyPropertiesPatternMatcher. */
   @Test
+  @Ignore
   public void testGetProperties() throws Exception {
     Grammar g = SchemaToTemplate.loadSchemaODF12();
     OdfFamilyPropertiesPatternMatcher instance = new OdfFamilyPropertiesPatternMatcher(g);

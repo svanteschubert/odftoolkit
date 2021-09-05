@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import schema2template.model.XMLModel;
 
@@ -65,6 +66,7 @@ public class OdfGenerationTest {
 
   /** Test: It should be able to generate all examples without a failure. */
   @Test
+  @Ignore
   public void testAllExampleGenerations() {
     try {
       // user.dir ==> generator/schema2template
