@@ -188,7 +188,7 @@ public class InvalidPackageTest extends OdfValidatorTestBase {
             "Error: The file 'META-INF/documentsignatures.xml' shall be listed in the 'META-INF/manifest.xml' file as it exists in the ODF package 'good.odt'"));
     Assert.assertTrue(
         "Output of validateDocumentSignature(): " + output,
-        output.contains("Error: element \"document-signatures\" is missing \"version\" attribute"));
+        output.contains("Error: element \"document-signatures\" is missing \"dsig:version\" attribute"));
     Assert.assertTrue(
         "Output of validateDocumentSignature(): " + output,
         output.contains("good.odt:  Info: 1 errors, no warnings"));

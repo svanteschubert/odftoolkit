@@ -204,7 +204,22 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
     if (retval != 0) {
       return retval;
     }
+    if(mParentExpression != null){
+        String parentName = null;
+        if(mParentExpression instanceof ElementExp){
+            
+            List<String> names = (List<String>) ((ElementExp) mParentExpression).getNameClass().visit(NAME_VISITOR);
+            if(names != null){
+               parentName = names.get(1);
+               if(parentName != null){
+                   return (mName.hashCode()) ^ mExpression.hashCode() ^ parentName.hashCode();
+               }
+            }
+        }        
+        return (mName.hashCode()) ^ mExpression.hashCode() ^ mParentExpression.hashCode();
+    }else{    
     return Integer.compare(this.hashCode(), o.hashCode());
+    }
   }
 
   /*
