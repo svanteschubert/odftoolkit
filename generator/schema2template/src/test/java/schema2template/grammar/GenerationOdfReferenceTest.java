@@ -30,7 +30,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import schema2template.GenerationParameters;
 import schema2template.SchemaToTemplate;
+import static schema2template.grammar.ConstantsBuildEnv.GENERATION_REFERENCE_BASE_DIR;
 import schema2template.grammar.ConstantsOdf.OdfSpecificationPart;
+import static schema2template.grammar.DirectoryCompare.compareDirectories;
 
 public class GenerationOdfReferenceTest {
 
@@ -80,8 +82,8 @@ public class GenerationOdfReferenceTest {
     }
 
     // Changing order of multiple puzzlepieces makes file comparison unuseable
-    /*compareDirectories(
+    compareDirectories(
     GENERATION_TARGET_BASE_DIR + ODF_REFERENCE_DIRECTORY,
-    GENERATION_REFERENCE_BASE_DIR + ODF_REFERENCE_DIRECTORY);*/
+    GENERATION_REFERENCE_BASE_DIR + ODF_REFERENCE_DIRECTORY);
   }
 }

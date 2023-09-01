@@ -106,7 +106,10 @@ public class GenerationOdfdomJavaTest {
 
     String grammarAdditionsPath = null;
     String mainTemplatePath = null;
-    for (ConstantsOdf.OdfSpecificationPart specPart : ConstantsOdf.OdfSpecificationPart.values()) {
+//    for (ConstantsOdf.OdfSpecificationPart specPart : ConstantsOdf.OdfSpecificationPart.values()) {
+
+    {
+        ConstantsOdf.OdfSpecificationPart specPart =  ConstantsOdf.OdfSpecificationPart.ODF_1_3_SCHEMA;
       if (specPart.grammarID.equals(ConstantsOdf.GrammarID.ODF_MANIFEST.ID)) {
         //  ODF manifest grammar
         grammarAdditionsPath = GRAMMAR_ADDITIONS_FILE__PACKAGE;

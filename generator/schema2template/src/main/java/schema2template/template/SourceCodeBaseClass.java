@@ -30,7 +30,7 @@ import schema2template.grammar.PuzzlePieceSet;
 import schema2template.grammar.XMLModel;
 
 /**
- * This calss encapsulates the name of the java base class, which is a Java super class where shared
+ * This class encapsulates the name of the java base class, which is a Java super class where shared
  * attributes and elements are being moved to. This class also offers functionality to find the
  * common attributes and elements via getBaseElements() and getBaseAttributes(). The base class
  * feature (its existence) is enabled by adding the attribute "base" one or more XML element named
@@ -100,27 +100,37 @@ public class SourceCodeBaseClass implements Comparable<SourceCodeBaseClass> {
    * @return attributes
    */
   public PuzzlePieceSet getBaseAttributes() {
-    SortedSet<PuzzlePiece> attributes =
+    if(!mChildElementsOfBaseClass.isEmpty()){
+      SortedSet<PuzzlePiece> attributes =
         new TreeSet<PuzzlePiece>(mChildElementsOfBaseClass.last().getAttributes());
-    for (PuzzlePiece childElement :
+      for (PuzzlePiece childElement :
         mChildElementsOfBaseClass.headSet(mChildElementsOfBaseClass.last())) {
-      attributes.retainAll(childElement.getAttributes());
+        attributes.retainAll(childElement.getAttributes());
+      }
+      if(!attributes.isEmpty()){
+        return new PuzzlePieceSet(attributes);
+      }else{
+        return null;
+      }
+    }else{
+      return null;
     }
-    return new PuzzlePieceSet(attributes);
   }
 
   /**
-   * Returns the element Definitions which are shared by all subclasses of this JavaBaseClass
+   * Returns the element Definitions which are shared by all subclasses of this JavaBaseClass and can be moved to the super class.
    *
    * @return elements
    */
   public PuzzlePieceSet getBaseElements() {
-    SortedSet<PuzzlePiece> elements =
+    // start to gather all XML elements from any ODF element having this base class (here the last element of the set)
+    SortedSet<PuzzlePiece> intersection =
         new TreeSet<PuzzlePiece>(mChildElementsOfBaseClass.last().getChildElements());
+    // compare the initial set with the child elements of every other ODF element having this base class and create an intersection
     for (PuzzlePiece childElement :
         mChildElementsOfBaseClass.headSet(mChildElementsOfBaseClass.last())) {
-      elements.retainAll(childElement.getChildElements());
+      intersection.retainAll(childElement.getChildElements());
     }
-    return new PuzzlePieceSet(elements);
+    return new PuzzlePieceSet(intersection);
   }
 }
