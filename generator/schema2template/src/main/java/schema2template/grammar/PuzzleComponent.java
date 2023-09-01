@@ -23,7 +23,10 @@
  */
 package schema2template.grammar;
 
+import com.sun.msv.grammar.DataExp;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The first purpose of this interface is to provide a kind of "piece of a puzzle" representing the
@@ -32,8 +35,6 @@ import java.util.Collection;
  * <ul>
  *   <li>Element PuzzlePiece
  *   <li>Attribute PuzzlePiece
- *   <li>Attribute Value PuzzlePiece
- *   <li>Attribute Datatype PuzzlePiece
  * </ul>
  *
  * <p>The second purpose of this interface is to hide the differences between one definition and a
@@ -82,14 +83,14 @@ public interface PuzzleComponent {
    *
    * @return The datatype Definitions of this PuzzleComponent
    */
-  public PuzzlePieceSet getDatatypes();
+  public Map<String, DataExp> getDatatypes();
 
   /**
    * ATTRIBUTE PuzzlePiece only: Get all value Definitions
    *
    * @return The constant value Definitions of this PuzzleComponent
    */
-  public PuzzlePieceSet getValues();
+  public Set<String> getValues();
 
   /**
    * Get all parent Definitions

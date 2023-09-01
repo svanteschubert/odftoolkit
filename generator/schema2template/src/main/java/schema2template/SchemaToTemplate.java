@@ -23,6 +23,7 @@
  */
 package schema2template;
 
+import com.sun.msv.grammar.Expression;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -85,6 +86,20 @@ public class SchemaToTemplate {
 
       String grammarFilePath = generation.getGrammarPath();
       //      System.out.println("GrammarPath: " + grammarFilePath);
+      /*
+      String grammarFilePath =  System.getProperty("schema2template.base.dir") + File.separator
+                        + "src"
+          + File.separator
+          + "test"
+          + File.separator
+          + "resources"
+          + File.separator
+          + "test-input"
+          + File.separator
+          + "odf"
+          + File.separator
+          + "grammar"
+          + File.separator + "simple.rng";      */
 
       String grammarAdditionsFilePath = generation.getGrammarAdditionsPath();
       //      System.out.println("grammarAddOnFilePath: " + grammarAdditionsFilePath);

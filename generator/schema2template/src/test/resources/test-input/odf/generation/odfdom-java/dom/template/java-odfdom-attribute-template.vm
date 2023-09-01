@@ -21,8 +21,8 @@
 
 ## Context:
 ##
-## The Velocity context is added up in the SchemaToTemplate.java
-## xmlModel - Represents an ODF grammar parsed by MSV with all relevant informations and usabiltiy functions
+## The Velocity context is added up in the SchemaToTemplate.java - the context is an XML node (either an XML attribute or XML element)
+## xmlModel - Represents an ODF grammar parsed by MSV with all relevant informations and usability functions
 ## xmlModelHistory - sorted list from latest to earliest release to assist in finding new XML node additions (see odf-reference-template.vm)
 ## But the Velocity context can also be extended by parameters from the calling main-template.
 ##
@@ -31,17 +31,18 @@
 #set($namespacePrefix = $attribute.getNamespacePrefix())
 #set($localname = ${xmlModel.extractLocalName($attribute)})
 #set($className = "${xmlModel.camelCase($attribute)}Attribute")
+
 #set ($valueobject = "String")
 ##
-#set($datatypes = ${attribute.getDatatypes().withoutMultiples()})
+#set($datatypes = ${attribute.getDatatypes()})
 #if ($datatypes.size() > 0)
 #set ($hasdatatype = true)
 #else
 #set ($hasdatatype = false)
 #end
 ##
-##2DO: Svante - getValues() vs. getValueLiterals() - only literals / constants for attribute values are taken
-#set($values = ${attribute.getValues().withoutMultiples()})
+## getValues() provides a predefined set of value string for the attribute, but it might be still be mixed with datatypes (e.g. @smil:repeatCount)
+#set($values = ${attribute.getValues()})
 #if ($values.size() > 0)
 #if ($values.size() ==2 && $hasdatatype == false)
 #set ($trueFlag = false)
@@ -214,6 +215,7 @@ public static final OdfName ATTRIBUTE_NAME = OdfName.newName("$localname");
 		setValue(attrValue.toString());
 	}
 
+##if(!${attribute.hasMultipleDataTypes()})
 	/**
 	 * @return Returns the <code>Enum</code> value of the attribute
 	 */
@@ -221,6 +223,7 @@ public static final OdfName ATTRIBUTE_NAME = OdfName.newName("$localname");
 		return Value.enumValueOf(this.getValue());
 	}
 #end
+##end
 ##
 ## Handle Non-String-Attributes
 #set ($valuetypes = ${codeModel.getValuetypes($datatypes)})
@@ -242,7 +245,7 @@ public static final OdfName ATTRIBUTE_NAME = OdfName.newName("$localname");
 	public void set${xmlModel.camelCase($simplevalue)}Value(${simplevalue} value) {
 		super.setValue(String.valueOf(value));
 	}
-
+##if(!${attribute.hasMultipleDataTypes()})
 	/**
 	 * @return Returns the <code>${simplevalue}</code> value of the attribute
 	 */
@@ -251,7 +254,17 @@ public static final OdfName ATTRIBUTE_NAME = OdfName.newName("$localname");
 		return ${valueobject}.parse${xmlModel.camelCase($simplevalue)}(val);
 	}
 #end
+##end
 ##
+##if(${attribute.hasMultipleDataTypes()})
+##	/**
+##	 * @return As the attribute has multiple datat types only the String value is being returned
+##	 */
+##	public String getValue() {
+##		return super.getValue();
+##	}
+##
+##end
 
 #if ($hasDefaultValue)
 	/**

@@ -23,11 +23,13 @@
  */
 package schema2template.grammar;
 
+import com.sun.msv.grammar.DataExp;
 import static schema2template.grammar.PuzzlePiece.NAME_VISITOR;
 
 import com.sun.msv.grammar.Expression;
 import com.sun.msv.grammar.Grammar;
 import com.sun.msv.grammar.NameClassAndExpression;
+import com.sun.msv.grammar.ValueExp;
 import com.sun.msv.reader.trex.ng.RELAXNGReader;
 import com.sun.msv.reader.xmlschema.XMLSchemaReader;
 import com.sun.msv.writer.relaxng.RELAXNGWriter;
@@ -118,7 +120,7 @@ public class XMLModel {
     return this.elementNameToPuzzlePieces.get(qName);
   }
 
-  /** @return a set of one or more elements, which might exist in the grammar for this qName */
+  /** @return a set of one or more attributes, which exist in the grammar for this qName */
   public SortedSet<PuzzlePiece> getAttributes(String qName) {
     if (this.attributeNameToPuzzlePieces == null) {
       // create a map from the qName to the PuzzlePiece(s) - multiple if there are multiple
@@ -268,6 +270,9 @@ public class XMLModel {
    * @return Element PuzzlePiece(s)
    */
   public PuzzleComponent getElement(String name) {
+    if(name.equals("draw:control")){
+      System.out.println("x");
+    }
     PuzzlePiece element = mNameElementMap.get(name);
     if (element == null) {
       return null;
@@ -303,7 +308,7 @@ public class XMLModel {
    * @param qName
    * @return Attribute PuzzlePiece(s)
    */
-  public PuzzleComponent getAttribute(String qName) {
+  public PuzzlePieceSet getAttribute(String qName) {
     PuzzlePiece attribute = mNameAttributeMap.get(qName);
     if (attribute == null) {
       return null;
@@ -336,7 +341,7 @@ public class XMLModel {
           // takes the first attribute definition with a correct parent
           if (names != null && names.contains(qParentName)) {
             attribute = ppAttribute;
-            break;
+            return attribute;
           }
         }
       }
@@ -354,15 +359,23 @@ public class XMLModel {
    */
   public String getAttributeDataType(String qName, String qParentName) {
     String dataType = "String";
+    if(qName.equals("smil:repeatCount") && qParentName.equals("anim:animate")){
+        System.out.println("XXX1");
+    }
     PuzzlePiece attr = getAttribute(qName, qParentName);
-    Collection<PuzzlePiece> d = attr.getDatatypes().getCollection();
+    if(attr == null){
+        System.out.println("XXX");
+    }
+    Map<String, DataExp> d = attr.getDatatypes();
     Boolean isBoolean = null;
     if (d.size() == 1) {
-      dataType = d.iterator().next().getQName();
+      dataType = d.values().iterator().next().getName().localName;
     } else if (!d.isEmpty()) {
       System.err.println(
           "\n***********\nThere are multiple datatypes for attribute '" + qName + "'\n");
-      Iterator dataTypesIter = d.iterator();
+      Iterator dataTypesIter = d.values().iterator();
+//2DOSVANTE************
+System.out.println("//2DOSVANTE************      ");
       while (dataTypesIter.hasNext()) {
         System.err.println(dataTypesIter.next().toString());
       }
@@ -385,10 +398,10 @@ public class XMLModel {
         PuzzlePieceSet attributes = ppElement.getAttributes();
         for (PuzzlePiece ppAttribute : attributes.getCollection()) {
           if (ppAttribute.getQName().equals(qName)) {
-            for (PuzzlePiece ppValue : ppAttribute.getValues().getCollection()) {
+            for (String ppValue : ppAttribute.getValues()) {
               // strange that the value has a localName (but the puzzlePiece abstraction should be
               // overworked anyway)
-              attributeValues.add(ppValue.getLocalName());
+              attributeValues.add(ppValue);
             }
           }
         }

@@ -133,12 +133,14 @@ public class OdfStyleFamily implements Comparable<OdfStyleFamily> {
 			new OdfStyleProperty[]{
 #set ($stylePropertiesElementName = "page-layout-properties")
 #set ($element = ${xmlModel.getElement("style:page-layout-properties")})
+#if ($element)
 #foreach ($property in ${element.getAttributes().withoutMultiples()})
 ## for ease of use all Java variables of ODF properties are without localname.
 ## But 'shadow' exist once twice with 'dr3d' & 'draw' prefix!
 #set($propertyName = ${property.getLocalName()})
 				Style${xmlModel.camelCase($stylePropertiesElementName)}Element.${xmlModel.camelCase($propertyName)}#if($foreach.hasNext),
 #end##if-foreach-,
+#end
 #end##foreeach-property
 });## PAGE STYLE FAMILY (END)
 
@@ -148,12 +150,14 @@ public class OdfStyleFamily implements Comparable<OdfStyleFamily> {
 			new OdfStyleProperty[]{
 #set ($stylePropertiesElementName = "list-level-properties")
 #set ($element = ${xmlModel.getElement("style:list-level-properties")})
+#if ($element)
 #foreach ($property in ${element.getAttributes().withoutMultiples()})
 ## for ease of use all Java variables of ODF properties are without localname.
 ## But 'shadow' exist once twice with 'dr3d' & 'draw' prefix!
 #set($propertyName = ${property.getLocalName()})
 				Style${xmlModel.camelCase($stylePropertiesElementName)}Element.${xmlModel.camelCase($propertyName)}#if($foreach.hasNext),
 #end##if-foreach-,
+#end
 #end##foreeach-property
 });## LIST STYLE FAMILY (END)
 

@@ -5495,19 +5495,19 @@ CHILD_ATTRIBUTES = {
 		'office:value-type', \
 ),
 	'form:list-value' : ( \
-		'office:date-value', \
+		'office:value', \
 ),
 	'form:list-value' : ( \
 		'office:boolean-value', \
+),
+	'form:list-value' : ( \
+		'office:date-value', \
 ),
 	'form:list-value' : ( \
 		'office:string-value', \
 ),
 	'form:list-value' : ( \
 		'office:time-value', \
-),
-	'form:list-value' : ( \
-		'office:value', \
 ),
 	'form:list-value' : ( \
 		'office:value', \

@@ -29,6 +29,7 @@ import com.sun.msv.grammar.ElementExp;
 import com.sun.msv.grammar.Expression;
 import com.sun.msv.grammar.Grammar;
 import com.sun.msv.grammar.NameClassAndExpression;
+import com.sun.msv.grammar.ReferenceExp;
 import com.sun.msv.grammar.ValueExp;
 import java.io.File;
 import java.util.ArrayList;
@@ -40,9 +41,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
- * One of the following RelaxNG definitions of an Element, Attribute, Value or Datatype.
+ * One of the following RelaxNG definitions of an Element or Attribute
  *
  * <p>Each PuzzlePiece encapsulates one MSV Expression. Two PuzzlePiece can share the same MSV
  * Expression (RelaxNG pattern:
@@ -71,7 +73,6 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
   private PuzzlePieceSet mMultiples = new PuzzlePieceSet();
   // definitions of elements which can have this as children
   private PuzzlePieceSet mParents = new PuzzlePieceSet();
-  private Expression mParentExpression = null;
 
   // DEFINITION CONTENT
   // ns:local tagname
@@ -88,9 +89,10 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
 
   /* Properties for PuzzlePiece of Type.ATTRIBUTE */
   // Values like "left", "centered", "right"
-  private PuzzlePieceSet mValues = new PuzzlePieceSet();
-  // generic Data Types like "string", "countryCode", ...
-  private PuzzlePieceSet mDatatypes = new PuzzlePieceSet();
+  private Set<String> mValues = new TreeSet<String>();
+  /** generic Data Types like "string", "countryCode", ...
+   the key is the name of the REFERENCE, which also stores information in ODF */
+  private Map<String, DataExp> mDatatypes = new HashMap<>();
 
   private PuzzlePiece(Expression exp, String name) {
     mExpression = exp;
@@ -184,11 +186,7 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
    * a distinct Hash Code.
    */
   public int hashCode() {
-    if(mParentExpression != null){
-        return (mName.hashCode()) ^ mExpression.hashCode() ^ mParentExpression.hashCode();
-    }else{
         return (mName.hashCode()) ^ mExpression.hashCode();
-    }
   }
 
   /**
@@ -204,23 +202,8 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
     if (retval != 0) {
       return retval;
     }
-    if(mParentExpression != null){
-        String parentName = null;
-        if(mParentExpression instanceof ElementExp){
-            
-            List<String> names = (List<String>) ((ElementExp) mParentExpression).getNameClass().visit(NAME_VISITOR);
-            if(names != null){
-               parentName = names.get(1);
-               if(parentName != null){
-                   return (mName.hashCode()) ^ mExpression.hashCode() ^ parentName.hashCode();
-               }
-            }
-        }        
-        return (mName.hashCode()) ^ mExpression.hashCode() ^ mParentExpression.hashCode();
-    }else{    
     return Integer.compare(this.hashCode(), o.hashCode());
     }
-  }
 
   /*
    * Return whether the content of this and of another PuzzlePiece are equal.
@@ -377,15 +360,6 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
   }
 
   /**
-   * Gets the Parent Expression which can contain this PuzzlePiece as a child
-   *
-   * @return The parent expression
-   */
-  public Expression getParent() {
-    return mParentExpression;
-  }
-
-  /**
    * Gets the child elements of this PuzzlePiece. Please note that only Definitions of type ELEMENT
    * can have child elements.
    *
@@ -428,7 +402,7 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
    *
    * @return The constant values
    */
-  public PuzzlePieceSet getValues() {
+  public Set<String> getValues() {
     return mValues;
   }
 
@@ -438,8 +412,40 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
    *
    * @return The datatypes
    */
-  public PuzzlePieceSet getDatatypes() {
+  public Map<String, DataExp> getDatatypes() {
     return mDatatypes;
+  }
+
+
+  /** This method is used by  Velocity templates (e.g. for source code generation).
+   * An attribute has multiple datatypes if
+   * 1. there are predefined Strings and any datatype
+   * 2. or multiple datatypes being given
+   *
+   * A)
+   * In the case the attribute is unique (or its multiple - multiple definitions in the RNG grammar with the same - have the same datatypes)
+   * there will be multiple set functions (for each datatypes/enumeration of values) but only a function returning String.
+   *
+   *        <rng:attribute name="smil:repeatCount">
+   *         <rng:choice>
+   *           <rng:ref name="nonNegativeDecimal"/>
+   *           <rng:value>indefinite</rng:value>
+   *         </rng:choice>
+   *       </rng:attribute>
+   *
+   * See https://docs.oasis-open.org/office/OpenDocument/v1.3/os/schemas/OpenDocument-v1.3-schema-rng.html#2325
+   *
+   * B)
+   * Otherwise, if the same name attribute has multiples (multiple definitions) with different types, the types will be neglected in the attribute, but
+   * created in the parent element, @form:value has various types!
+   *
+   * */
+
+  public boolean hasSingleDatatype(){
+      // if there are values (string constants) and any datatypes given
+      return mValues != null && !mValues.isEmpty() && mDatatypes != null && !mDatatypes.isEmpty()
+        // of if there are multiple datatypes given
+        || mDatatypes != null && mDatatypes.size() > 1;
   }
 
   /*
@@ -503,7 +509,7 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
     //    assert (!schemaFileName.equals(SchemaToTemplate.ODF13_RNG_FILE)
     //        || newAttributeSet.size() == 1836);
     addChildExpression(newElementSet, newAttributeSet, schemaFileName, graphMLTargetDir);
-    reduceDatatypes(newAttributeSet);
+//    reduceDatatypes(newAttributeSet);
 
     /*
     assert(!schemaFileName.equals(OdfHelper.ODF11_RNG_FILE) || newAttributeSet.size() == 1628);
@@ -516,7 +522,7 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
     //        || newAttributeSet.size() == 1820);
     //    assert (!schemaFileName.equals(SchemaToTemplate.ODF13_RNG_FILE)
     //        || newAttributeSet.size() == 1836);
-    reduceValues(newAttributeSet);
+//    reduceValues(newAttributeSet);
 
     /*
     assert(!schemaFileName.equals(OdfHelper.ODF11_RNG_FILE) || newAttributeSet.size() == 1628);
@@ -619,50 +625,50 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
     }
     return retval;
   }
-
-  // Unite Value Definitions with equal content. Has to be last step (after Value Definitions have
-  // been assigned to Attributes)
-  private static void reduceValues(PuzzlePieceSet attributes) {
-    PuzzlePieceSet values = new PuzzlePieceSet();
-    for (PuzzlePiece attr : attributes) {
-      values.addAll(attr.getValues());
-    }
-    Map<PuzzlePiece, PuzzlePiece> lostToSurvived = values.uniteDefinitionsWithEqualContent();
-    for (PuzzlePiece attr : attributes) {
-      PuzzlePieceSet attributeValues = attr.getValues();
-      PuzzlePieceSet immutable = new PuzzlePieceSet(attributeValues);
-      for (PuzzlePiece value : immutable) {
-        if (lostToSurvived.containsKey(value)) {
-          // Replace lost with survived
-          attributeValues.remove(value);
-          attributeValues.add(lostToSurvived.get(value));
-        }
-      }
-    }
-  }
-
-  // Unite Datatype Definitions with equal content. Has to be last step (after Datatype Definitions
-  // have been assigned to Attributes).
-  // Has to be even after reduceValues and reduceDatatypes, otherwise some attributes do not seem to
-  // have equal content
-  private static void reduceDatatypes(PuzzlePieceSet attributes) {
-    PuzzlePieceSet datatypes = new PuzzlePieceSet();
-    for (PuzzlePiece attr : attributes) {
-      datatypes.addAll(attr.getDatatypes());
-    }
-    Map<PuzzlePiece, PuzzlePiece> lostToSurvived = datatypes.uniteDefinitionsWithEqualContent();
-    for (PuzzlePiece attr : attributes) {
-      PuzzlePieceSet attributeDatatypes = attr.getValues();
-      PuzzlePieceSet immutable = new PuzzlePieceSet(attributeDatatypes);
-      for (PuzzlePiece datatype : immutable) {
-        if (lostToSurvived.containsKey(datatype)) {
-          // Replace lost with survived
-          attributeDatatypes.remove(datatype);
-          attributeDatatypes.add(lostToSurvived.get(datatype));
-        }
-      }
-    }
-  }
+//
+//  // Unite Value Definitions with equal content. Has to be last step (after Value Definitions have
+//  // been assigned to Attributes)
+//  private static void reduceValues(PuzzlePieceSet attributes) {
+//    List<String> values = new ArrayList<String>();
+//    for (PuzzlePiece attr : attributes) {
+//      values.addAll(attr.getValues());
+//    }
+//    Map<PuzzlePiece, PuzzlePiece> lostToSurvived = values.uniteDefinitionsWithEqualContent();
+//    for (PuzzlePiece attr : attributes) {
+//      List<String> attributeValues = attr.getValues();
+//      PuzzlePieceSet immutable = new PuzzlePieceSet(attributeValues);
+//      for (PuzzlePiece value : immutable) {
+//        if (lostToSurvived.containsKey(value)) {
+//          // Replace lost with survived
+//          attributeValues.remove(value);
+//          attributeValues.add(lostToSurvived.get(value));
+//        }
+//      }
+//    }
+//  }
+//
+//  // Unite Datatype Definitions with equal content. Has to be last step (after Datatype Definitions
+//  // have been assigned to Attributes).
+//  // Has to be even after reduceValues and reduceDatatypes, otherwise some attributes do not seem to
+//  // have equal content
+//  private static void reduceDatatypes(PuzzlePieceSet attributes) {
+//    Map<String,DataExp> datatypes = new HashMap<String,DataExp>();
+//    for (PuzzlePiece attr : attributes) {
+//      datatypes.putAll(attr.getDatatypes());
+//    }
+//    Map<PuzzlePiece, PuzzlePiece> lostToSurvived = datatypes.uniteDefinitionsWithEqualContent();
+//    for (PuzzlePiece attr : attributes) {
+//      Map<String, DataExp> attributeDatatypes = attr.getDatatypes();
+//      Map<String, DataExp> immutable = new HashMap<String,DataExp>(attributeDatatypes);
+//      for (Map<String, DataExp> datatype : immutable) {
+//        if (lostToSurvived.containsKey(datatype)) {
+//          // Replace lost with survived
+//          attributeDatatypes.remove(datatype);
+//          attributeDatatypes (lostToSurvived.get(datatype));
+//        }
+//      }
+//    }
+//  }
 
   // Unite Attribute Definitions with equal content. Has to be last step (after Attribute
   // Definitions have been assigned to Elements)
@@ -752,24 +758,37 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
     Iterator<PuzzlePiece> aiter = attributes.iterator();
     while (aiter.hasNext()) {
       PuzzlePiece def = aiter.next();
-
-      MSVExpressionIterator datatypeFinder =
-          new MSVExpressionIterator(
-              def.getExpression(), DataExp.class, MSVExpressionIterator.DIRECT_CHILDREN_ONLY);
-      while (datatypeFinder.hasNext()) {
-        DataExp data_exp = (DataExp) datatypeFinder.next();
-        def.mDatatypes.add(new PuzzlePiece(data_exp));
+      if(def.mName.equals("smil:repeatCount")){
+          System.out.println("xxs");
       }
+//      MSVExpressionIterator datatypeFinder =
+//          new MSVExpressionIterator(
+//              def.getExpression(), DataExp.class, MSVExpressionIterator.DIRECT_CHILDREN_ONLY);
+//      while (datatypeFinder.hasNext()) {
+//        DataExp data_exp = (DataExp) datatypeFinder.next();
+//        /*
+//        String type  = data_exp.getType().toString();
+//        String displayName  = ((XSDatatype) data_exp.getType()).displayName();
+//        String[] names  = ((XSDatatype) data_exp.getType()).getApplicableFacetNames();
+//        String name  = ((XSDatatype) data_exp.getType()).getName();
+//        String nameUri  = ((XSDatatype) data_exp.getType()).getNamespaceUri();
+//        XSDatatype dtype  = ((XSDatatype) data_exp.getType()).getAncestorBuiltinType();
+//        String facetName  = ((DataTypeWithFacet) data_exp.getType()).facetName;
+//        String localName = data_exp.getName().localName;*/
+//        //def.mDatatypes.add(new PuzzlePiece(data_exp));
+//      }
 
-      MSVExpressionIterator valueFinder =
-          new MSVExpressionIterator(
-              def.getExpression(), ValueExp.class, MSVExpressionIterator.DIRECT_CHILDREN_ONLY);
-      while (valueFinder.hasNext()) {
-        ValueExp value_exp = (ValueExp) valueFinder.next();
-        if (value_exp.getName().localName.equals("token")) {
-          def.mValues.add(new PuzzlePiece(value_exp));
-        }
-      }
+      fillData(def.getExpression(), def.mDatatypes, def.mValues);
+
+//      MSVExpressionIterator valueFinder =
+//          new MSVExpressionIterator(
+//              def.getExpression(), ValueExp.class, MSVExpressionIterator.DIRECT_CHILDREN_ONLY);
+//      while (valueFinder.hasNext()) {
+//        ValueExp value_exp = (ValueExp) valueFinder.next();
+//        if (value_exp.getName().localName.equals("token")) {
+//          def.mValues.add(new PuzzlePiece(value_exp));
+//        }
+//      }
     }
   }
 
@@ -780,9 +799,48 @@ public class PuzzlePiece implements Comparable<PuzzlePiece>, PuzzleComponent {
       def.mChildElements.makeImmutable();
       def.mMultiples.makeImmutable();
       def.mParents.makeImmutable();
-      def.mValues.makeImmutable();
-      def.mDatatypes.makeImmutable();
     }
     defs.makeImmutable();
   }
+
+    /** HEURISTIC: In ODF every DataExp is being referenced and the reference name stores semantic: e.g. "NoneNegativDecimal", Decimal
+     *
+     * Fills the ReferenceDatatypeMap with referencename as key and datatype as value and the valueList (as strings)
+     * although there are also integer and decimal values existend as <rng:value> they are either mixed or in @office:version not specified as decimal
+     * and can (and will) be handled as strings:
+     https://docs.oasis-open.org/office/OpenDocument/v1.3/os/part3-schema/OpenDocument-v1.3-os-part3-schema.html#attribute-svg_font-weight
+     https://docs.oasis-open.org/office/OpenDocument/v1.3/os/part3-schema/OpenDocument-v1.3-os-part3-schema.html#attribute-office_version
+     https://docs.oasis-open.org/office/OpenDocument/v1.3/os/part3-schema/OpenDocument-v1.3-os-part3-schema.html#attribute-text_outline-level
+     */
+    private static void fillData(Expression startExpr, Map<String, DataExp> ReferenceDatatypeMap, Set<String> valueList) {
+        String referenceName = null;
+        DataExp dataExp = null;
+
+        MSVExpressionIterator childIterator
+                = new MSVExpressionIterator(
+                        startExpr,
+                        Expression.class,
+                        MSVExpressionIterator.DIRECT_CHILDREN_ONLY);
+        while (childIterator.hasNext()) {
+            Expression expr = childIterator.next();
+
+            if (expr instanceof ReferenceExp) {
+                referenceName = ((ReferenceExp) expr).name;
+
+            } else if (expr instanceof ValueExp) {
+                valueList.add(((ValueExp) expr).value.toString());
+            } else if (expr instanceof DataExp) {
+                dataExp = ((DataExp) expr);
+                //System.out.println("DateExpName: " + dataExp.getName().localName);
+
+            }
+            //Heuristic as in ODF RNG all DataExp are referenced!Values are not made open by MSV but semantic is within the refereneName, e.g. NoneNegativDecimal, Decimal
+            if (referenceName != null && !referenceName.isEmpty() && dataExp != null) {
+                ReferenceDatatypeMap.put(referenceName, dataExp);
+                // in case there are multiple refExp/dataExp
+                referenceName = null;
+                dataExp = null;
+            }
+        }
+    }
 }

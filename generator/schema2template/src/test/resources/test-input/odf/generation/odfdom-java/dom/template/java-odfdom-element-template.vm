@@ -278,13 +278,13 @@ public ${abstract}class $className extends $superClassName {
 #set($attri = ${xmlModel.getAttribute($attr.getQName(), $element.getQName())})
 #set($valueObject = ${xmlModel.getAttributeDataType($attr.getQName(), $element.getQName())})
 #set ($simpleValue = "")
-#set ($dataTypes = ${attri.getDatatypes().withoutMultiples()})
+#set ($dataTypes = ${attri.getDatatypes()})
 #set ($valueTypes = ${codeModel.getValuetypes($dataTypes)})
 #foreach ($valueType in $valueTypes)
 #set ($valueObject = $valueType)
 #end
 ## use attri get all of the values.
-#set($values = ${attri.getValues().withoutMultiples()})
+#set($values = ${attri.getValues()})
 #if ($values.size() ==2 && $dataTypes.size()==0)
 #set ($trueFlag = false)
 #set ($falseFlag = false)
@@ -403,13 +403,13 @@ public ${abstract}class $className extends $superClassName {
 #set($ch_attri = ${xmlModel.getAttribute($ch_attr.getQName(), $ch.getQName())})
 #set($ch_ValueObject = ${xmlModel.getAttributeDataType($ch_attr.getQName(), $ch.getQName())})
 #set ($ch_SimpleValue = "")
-#set ($ch_DataTypes = ${ch_attri.getDatatypes().withoutMultiples()})
+#set ($ch_DataTypes = ${ch_attri.getDatatypes()})
 #set ($ch_ValueTypes = ${codeModel.getValuetypes($ch_DataTypes)})
 #foreach ($ch_ValueType in $ch_ValueTypes)
 #set ($ch_ValueObject = $ch_ValueType)
 #end
 ## use ch_attri get all of the values.
-#set($ch_Values = ${ch_attri.getValues().withoutMultiples()})
+#set($ch_Values = ${ch_attri.getValues()})
 #if ($ch_Values.size() ==2 && $ch_DataTypes.size()==0)
 #set ($trueFlag = false)
 #set ($falseFlag = false)

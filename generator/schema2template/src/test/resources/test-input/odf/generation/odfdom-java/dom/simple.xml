@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
+
+     Copyright 2008, 2010 Oracle and/or its affiliates. All rights reserved.
+     Copyright 2009 IBM. All rights reserved.
+
+     Use is subject to license terms.
+
+     Licensed under the Apache License, Version 2.0 (the "License"); you may not
+     use this file except in compliance with the License. You may obtain a copy
+     of the License at http://www.apache.org/licenses/LICENSE-2.0. You can also
+     obtain a copy of the License at http://odftoolkit.org/docs/license.txt
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+     WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+     See the License for the specific language governing permissions and
+     limitations under the License.
+
+-->
+<!-- These additions to the RNG grammar given by the ODF TC consists of three parts:
+     1. ELEMENTS
+     a) providing the style family name (via attribute family) as written in the specification (not extracted yet)
+     b) providing the base (super) class name (via attribute base) where common attributes and child elements are being collected. Value expected to be added by an XML qualified name.
+     c) providing the extension class name (via attribute extension). A given base class would extend from that. Have to be added by full qualifed Java package name.
+     d) Semantic component expressing the known semantic user entity is expressed (via root-of-component extension)
+
+     2. DATA TYPES
+     a) Providing the mapping between RNG/XSD and ODF datatypes to Java classes
+
+     3. ATTRIBUTES
+     a) Default values extracted from the sepcification by default character style using XSLT, e.g.
+     https://github.com/oasis-tcs/odf-tc/blob/master/src/test/resources/odf1.4/tools/getAttributeDefaults.xsl
+     and as extracted file
+     https://github.com/oasis-tcs/odf-tc/blob/master/src/test/resources/odf1.4/references/xslt-default/content.odf14-default-values.xml
+     b) attributes which represents the repetition of its attribute (e.g. for column, cells and spaces)
+-->
+<grammar-additions>
+    <elements>
+    </elements>
+    <data-types>
+        <data name="anyURI" value-type="java.net.URI" conversion-type="org.odftoolkit.odfdom.type.AnyURI"/>
+        <data name="boolean" value-type="Boolean" conversion-type="Boolean"/>
+        <data name="base64Binary" value-type="String" conversion-type="org.odftoolkit.odfdom.type.Base64Binary"/>
+        <data name="cellAddress" value-type="String" conversion-type="org.odftoolkit.odfdom.type.CellAddress"/>
+        <data name="cellRangeAddress" value-type="String" conversion-type="org.odftoolkit.odfdom.type.CellRangeAddress"/>
+        <data name="cellRangeAddressList" value-type="String" conversion-type="org.odftoolkit.odfdom.type.CellRangeAddressList"/>
+        <data name="clipShape" value-type="String" conversion-type="org.odftoolkit.odfdom.type.ClipShape"/>
+        <data name="color" value-type="String" conversion-type="org.odftoolkit.odfdom.type.Color"/>
+        <data name="coordinate" value-type="String" conversion-type="org.odftoolkit.odfdom.type.Coordinate"/>
+        <data name="countryCode" value-type="String" conversion-type="org.odftoolkit.odfdom.type.CountryCode"/>
+        <data name="CURIE" value-type="String" conversion-type="org.odftoolkit.odfdom.type.CURIE"/>
+        <data name="CURIEs" value-type="String" conversion-type="org.odftoolkit.odfdom.type.CURIEs"/>
+        <data name="date" value-type="javax.xml.datatype.XMLGregorianCalendar" conversion-type="org.odftoolkit.odfdom.type.Date"/>
+        <data name="dateOrDateTime" value-type="javax.xml.datatype.XMLGregorianCalendar" conversion-type="org.odftoolkit.odfdom.type.DateOrDateTime"/>
+        <data name="dateTime" value-type="javax.xml.datatype.XMLGregorianCalendar" conversion-type="org.odftoolkit.odfdom.type.DateTime"/>
+        <data name="distance" value-type="String" conversion-type="org.odftoolkit.odfdom.type.Distance"/>
+        <data name="duration" value-type="javax.xml.datatype.Duration" conversion-type="org.odftoolkit.odfdom.type.DurationType"/>
+        <data name="double" value-type="Double" conversion-type="Double"/>
+    <!--data name="extrusionOrigin" value-type="String" conversion-type="org.odftoolkit.odfdom.attribute.ExtrusionOrigin"/-->
+        <data name="formula" value-type="String" conversion-type="org.odftoolkit.odfdom.type.Formula"/>
+        <data name="ID" value-type="String" conversion-type="org.odftoolkit.odfdom.type.ID"/>
+        <data name="IDREF" value-type="String" conversion-type="org.odftoolkit.odfdom.type.IDREF"/>
+        <data name="IDREFS" value-type="String" conversion-type="org.odftoolkit.odfdom.type.IDREFS"/>
+        <data name="integer" value-type="Integer" conversion-type="Integer"/>
+        <data name="language" value-type="String" conversion-type="org.odftoolkit.odfdom.type.Language"/>
+        <data name="languageCode" value-type="String" conversion-type="org.odftoolkit.odfdom.type.LanguageCode"/>
+        <data name="length" value-type="String" conversion-type="org.odftoolkit.odfdom.type.Length"/>
+        <data name="namespacedToken" value-type="String" conversion-type="org.odftoolkit.odfdom.type.NamespacedToken"/>
+        <data name="NCName" value-type="String" conversion-type="org.odftoolkit.odfdom.type.NCName"/>
+        <data name="nonNegativeDecimal" value-type="Double" conversion-type="org.odftoolkit.odfdom.type.NonNegativeDecimal"/>
+        <data name="nonNegativeInteger" value-type="Integer" conversion-type="org.odftoolkit.odfdom.type.NonNegativeInteger"/>
+        <data name="nonNegativeLength" value-type="String" conversion-type="org.odftoolkit.odfdom.type.NonNegativeLength"/>
+        <data name="nonNegativePixelLength" value-type="String" conversion-type="org.odftoolkit.odfdom.type.NonNegativePixelLength"/>
+        <data name="percent" value-type="String" conversion-type="org.odftoolkit.odfdom.type.Percent"/>
+        <data name="point3D" value-type="String" conversion-type="org.odftoolkit.odfdom.type.Point3D"/>
+        <data name="points" value-type="String" conversion-type="org.odftoolkit.odfdom.type.Points"/>
+        <data name="positiveInteger" value-type="Integer" conversion-type="org.odftoolkit.odfdom.type.PositiveInteger"/>
+        <data name="positiveLength" value-type="String" conversion-type="org.odftoolkit.odfdom.type.PositiveLength"/>
+    <!--data name="presentation-classes" value-type="String" conversion-type="org.odftoolkit.odfdom.attribute.PresentationClasses"/-->
+        <data name="relativeLength" value-type="String" conversion-type="org.odftoolkit.odfdom.type.RelativeLength"/>
+        <data name="SafeCURIE" value-type="String" conversion-type="org.odftoolkit.odfdom.type.SafeCURIE"/>
+        <data name="scriptCode" value-type="String" conversion-type="org.odftoolkit.odfdom.type.ScriptCode"/>
+        <data name="signedZeroToHundredPercent" value-type="String" conversion-type="org.odftoolkit.odfdom.type.SignedZeroToHundredPercent"/>
+        <data name="string" value-type="String" conversion-type="String"/>
+        <data name="styleName" value-type="String" conversion-type="org.odftoolkit.odfdom.type.StyleName"/>
+        <data name="styleNameRef" value-type="String" conversion-type="org.odftoolkit.odfdom.type.StyleNameRef"/>
+        <data name="styleNameRefs" value-type="String" conversion-type="org.odftoolkit.odfdom.type.StyleNameRefs"/>
+        <data name="targetFrameName" value-type="String" conversion-type="org.odftoolkit.odfdom.type.TargetFrameName"/>
+    <!--data name="targetFrameName" value-type="enum" conversion-type="office:target-frame-name"/-->
+        <data name="textEncoding" value-type="String" conversion-type="org.odftoolkit.odfdom.type.TextEncoding"/>
+        <data name="time" value-type="javax.xml.datatype.XMLGregorianCalendar" conversion-type="org.odftoolkit.odfdom.type.Time"/>
+        <data name="timeOrDateTime" value-type="javax.xml.datatype.XMLGregorianCalendar" conversion-type="org.odftoolkit.odfdom.type.TimeOrDateTime"/>
+        <data name="URIorSafeCURIE" value-type="String" conversion-type="org.odftoolkit.odfdom.type.URIorSafeCURIE"/>
+        <data name="valueType" value-type="String" conversion-type="org.odftoolkit.odfdom.type.ValueType"/>
+        <data name="vector3D" value-type="String" conversion-type="org.odftoolkit.odfdom.type.Vector3D"/>
+        <data name="zeroToHundredPercent" value-type="String" conversion-type="org.odftoolkit.odfdom.type.ZeroToHundredPercent"/>
+        <data name="zeroToOneDecimal" value-type="Double" conversion-type="org.odftoolkit.odfdom.type.ZeroToOneDecimal"/>
+    <!--data name="rowOrCol" value-type="enum" conversion-type="table:row-or-column"/-->
+        <data name="stylefamily" value-type="org.odftoolkit.odfdom.dom.style.OdfStyleFamily" conversion-type="org.odftoolkit.odfdom.dom.style.OdfStyleFamily"/>
+    </data-types>
+    <attributes>
+        <attribute name="smil:repeatCount" defaultValue="0.0"/>
+    </attributes>
+</grammar-additions>

@@ -23,23 +23,18 @@
  */
 package schema2template.grammar;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import com.sun.msv.grammar.DataExp;
+
+import java.util.*;
 
 /**
- * Collection Class for RelaxNG definitions of an Element, Attribute, Value or Datatype.
+ * Collection Class for RelaxNG definitions of an Element, Attribute
  *
  * <p>Conventions:
  *
  * <ul>
  *   <li>PuzzlePiece sorting is done by ns:local tag names as first key and hashCode as second key
  *       (see class PuzzlePiece).
- *   <li>Since it is a Collection, PuzzlePieceSet is not meant to be used in a Collection. So
- *       equals(o) and hashCode() are not overwritten
  *   <li>All returned PuzzlePieceSet objects are immutable to protect them against naive usage in
  *       velocity templates
  * </ul>
@@ -100,6 +95,15 @@ public class PuzzlePieceSet implements PuzzleComponent, Collection<PuzzlePiece> 
   public int hashCode() {
     return mDefinitions.hashCode();
   }
+
+
+  @Override
+  public int compareTo(PuzzlePieceSet o) {
+    return mDefinitions.comparator().compare(o.mDefinitions, this.mDefinitions);
+    mDefinitions.comparator();
+
+  }
+
 
   private PuzzlePiece first() {
     return this.iterator().next();
@@ -223,7 +227,7 @@ public class PuzzlePieceSet implements PuzzleComponent, Collection<PuzzlePiece> 
    *
    * @param parents
    * @return new PuzzlePieceSet
-   */
+
   public PuzzlePieceSet byParent(PuzzleComponent parents) {
     PuzzlePieceSet retval = new PuzzlePieceSet();
     for (PuzzlePiece def : this) {
@@ -237,13 +241,13 @@ public class PuzzlePieceSet implements PuzzleComponent, Collection<PuzzlePiece> 
     }
     return retval;
   }
-
+   */
   /**
    * Check whether this List contains an Element by this Name
    *
    * @param aDefinitionName
    * @return True if an element by this name exists
-   */
+
   public boolean containsName(String aDefinitionName) {
     for (PuzzlePiece def : this) {
       if (def.getQName().equals(aDefinitionName)) {
@@ -252,17 +256,17 @@ public class PuzzlePieceSet implements PuzzleComponent, Collection<PuzzlePiece> 
     }
     return false;
   }
-
+   */
   /**
    * Check whether this List contains an Element by this Name
    *
    * @param aNamed
    * @return True if an element by this name exists
-   */
+
   public boolean containsName(PuzzleComponent aNamed) {
     return containsName(aNamed.getQName());
   }
-
+   */
   /*
    * -----------------------------------------------------
    *  Interface PuzzleComponent
@@ -428,10 +432,10 @@ public class PuzzlePieceSet implements PuzzleComponent, Collection<PuzzlePiece> 
     return retval;
   }
 
-  public PuzzlePieceSet getDatatypes() {
-    PuzzlePieceSet retval = new PuzzlePieceSet();
+  public Map<String, DataExp> getDatatypes() {
+    Map<String, DataExp> retval = new HashMap<String, DataExp>();
     for (PuzzlePiece def : this) {
-      retval.addAll(def.getDatatypes());
+      retval.putAll(def.getDatatypes());
     }
     return retval;
   }
@@ -444,8 +448,8 @@ public class PuzzlePieceSet implements PuzzleComponent, Collection<PuzzlePiece> 
     return retval;
   }
 
-  public PuzzlePieceSet getValues() {
-    PuzzlePieceSet retval = new PuzzlePieceSet();
+  public Set<String> getValues() {
+    Set retval = new TreeSet();
     for (PuzzlePiece def : this) {
       retval.addAll(def.getValues());
     }

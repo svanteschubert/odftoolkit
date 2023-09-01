@@ -28,8 +28,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import com.sun.msv.grammar.DataExp;
 import schema2template.grammar.PuzzleComponent;
 import schema2template.grammar.PuzzlePiece;
+import schema2template.grammar.PuzzlePieceSet;
 import schema2template.grammar.XMLModel;
 
 /**
@@ -182,6 +185,14 @@ public class SourceCodeModel {
    * @return sourceCodeBaseClass object
    */
   public SourceCodeBaseClass getBaseClass(String baseName) {
+  if(baseName.equals("draw:shape")){
+    System.out.println("x");
+    SourceCodeBaseClass drawShape = mBaseNameToBaseClass.get(baseName);
+    PuzzlePieceSet p = drawShape.getBaseElements();
+    PuzzlePieceSet p2 = p.withoutMultiples();
+    System.out.println("y");
+  }
+
     return mBaseNameToBaseClass.get(baseName);
   }
 
@@ -281,13 +292,12 @@ public class SourceCodeModel {
    * @param datatypes Schema datatypes
    * @return the corresponding source code datatypes
    */
-  public SortedSet<String> getValuetypes(PuzzleComponent datatypes) {
+  public SortedSet<String> getValuetypes(Map<String, DataExp> datatypes) {
     SortedSet<String> retval = null;
     if (datatypes != null) {
       retval = new TreeSet<String>();
-      for (PuzzlePiece datatype : datatypes.getCollection()) {
-        String datatypename = datatype.getQName();
-        String[] tuple = mDataTypeValueAndConversionMap.get(datatypename);
+      for (String refName : datatypes.keySet()) {
+        String[] tuple = mDataTypeValueAndConversionMap.get(refName);
         if (tuple != null) {
           String valuetype = tuple[0];
           if (valuetype != null) {

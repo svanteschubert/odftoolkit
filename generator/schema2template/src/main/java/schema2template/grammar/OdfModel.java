@@ -81,8 +81,12 @@ public class OdfModel {
    * @param element stylable element name
    * @return whether there are style families defined for this Definition
    */
-  public boolean isStylable(PuzzleComponent element) {
-    return mNameToFamiliesMap.containsKey(element.getQName());
+  public Boolean isStylable(PuzzleComponent element) {
+    if(element != null){
+      return mNameToFamiliesMap.containsKey(element.getQName());
+    }else{
+      return null;
+    }
   }
 
   /**

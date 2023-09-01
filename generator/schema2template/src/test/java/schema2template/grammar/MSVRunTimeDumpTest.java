@@ -71,7 +71,7 @@ public class MSVRunTimeDumpTest {
                 + "\n\ttargetDirPath: "
                 + ConstantsBuildEnv.TARGET_BASE_DIR
                 + MSV_DUMP_DIRECTORY);
-        Expression odfRoot = XMLModel.loadSchema(specPart.grammarPath).getTopLevel();
+        Expression odfRoot = XMLModel.loadSchema(ConstantsBuildEnv.ODF_GRAMMAR_BASE_DIR + "simple.rng").getTopLevel();
         String odfDump = dumpMSVExpressionTree(odfRoot);
 
         String grammarLabel = specPart.grammarID + "-" + specPart.grammarVersion;
@@ -80,8 +80,8 @@ public class MSVRunTimeDumpTest {
             ConstantsBuildEnv.TARGET_BASE_DIR
                 + MSV_DUMP_DIRECTORY
                 + File.separator
-                + grammarLabel
-                + "-msvtree.txt";
+                //+ grammarLabel
+                + "simple-msvtree.txt";
         LOG.log(
             Level.INFO,
             "Writing MSV RelaxNG tree for " + grammarLabel + " + into file: {0}",
