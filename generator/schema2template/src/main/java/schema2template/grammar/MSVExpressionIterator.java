@@ -52,7 +52,7 @@ public final class MSVExpressionIterator implements Iterator<Expression> {
   private static final Logger LOG = Logger.getLogger(MSVExpressionIterator.class.getName());
   private Expression mCurrentExpression; // the expression that will be received by next()
   // public int mCurrentExpressionDepth; // Level of current expression starting with 0
-  private MSVExpressionVisitorChildren mVisitor;
+  private MSVExpressionVisitorChildren mChildVisitor;
   // list of already visited expressions to avoid endless recursion
   // The stack assists the iteration to go back up (usually done in by recursion)
   // The stack contains the next expression, parent, grandparent, ...
@@ -76,7 +76,8 @@ public final class MSVExpressionIterator implements Iterator<Expression> {
   }
   // limit browsing to subclasses of Expression
   private Class mDesiredExpression;
-  // if false, only return direct children of root. Don't return root as first element or grand
+  private Expression mNextExpression;
+  // if false, only return direct children of startExpression. Don't return startExpression as first element or grand
   // children
   private boolean mOnlyChildren;
   private int mCurrentDepth = 0;
@@ -90,59 +91,60 @@ public final class MSVExpressionIterator implements Iterator<Expression> {
   /**
    * Iterate through the expression tree
    *
-   * @param root Expression root
+   * @param startExpression Expression startExpression
    */
-  public MSVExpressionIterator(Expression root) {
-    this(root, Expression.class, false);
+  public MSVExpressionIterator(Expression startExpression) {
+    this(startExpression, Expression.class, false);
   }
 
   /**
    * Iterate through the expression tree, but only return objects of desiredExpression
    *
-   * @param root Expression root
+   * @param startExpression Expression startExpression
    * @param desiredExpression Limit returned expressions to subclasses of desiredExpression
    */
-  public MSVExpressionIterator(Expression root, Class desiredExpression) {
-    this(root, desiredExpression, false);
+  public MSVExpressionIterator(Expression startExpression, Class desiredExpression) {
+    this(startExpression, desiredExpression, false);
   }
 
   /**
    * Iterate..., but only return objects of desiredExpression and (if not onlyChildren) don't go to
-   * children of ElementExp elements (this does not concern root node!).
+   * children of ElementExp elements (this does not concern startExpression node!).
    *
    * <p>Example: Root is table:table. If you choose onlyChildren=false and to limit
    * desiredExpression=ElementExp.class, then you will get all direct element children of
    * table:table, like table:table-row. But you won't get the children of table:table-row.
    *
-   * @param root Expression root
+   * @param parent Expression startExpression
    * @param desiredExpression Limit returned expressions to subclasses of desiredExpression
    * @param onlyChildren if only children should be returned
    */
-  public MSVExpressionIterator(Expression root, Class desiredExpression, boolean onlyChildren) {
+  public MSVExpressionIterator(Expression parent, Class desiredExpression, boolean onlyChildren) {
     // initialize members
-    mCurrentExpression = root;
+    mCurrentExpression = parent;
     mDesiredExpression = desiredExpression;
     mOnlyChildren = onlyChildren;
 
     // create helpers
-    mVisitor = new MSVExpressionVisitorChildren();
+    mChildVisitor = new MSVExpressionVisitorChildren();
     mKnownElementExpressions = new HashSet<Expression>();
 
     // Initialize status
     mAncestorsAndCurrent = new Stack<UniqueAncestor>();
-    mAncestorsAndCurrent.push(new UniqueAncestor(root, 0));
+    mAncestorsAndCurrent.push(new UniqueAncestor(parent, 0));
 
     // make sure that there is at least one desired expression - for hasNext()
     while (!mDesiredExpression.isInstance(mCurrentExpression) && mCurrentExpression != null) {
       mCurrentExpression = getNextExpression();
     }
 
-    // Ignore root, if only children are desired
-    if (mOnlyChildren && root == mCurrentExpression) {
+    // Ignore startExpression, if only children are desired
+    if (mOnlyChildren && parent == mCurrentExpression) {
       mCurrentExpression = getNextExpression();
     }
   }
 
+  // FIXME: if ONLY children the parent show up as hasNEXT!!
   public boolean hasNext() {
     return (mCurrentExpression != null) ? true : false;
   }
@@ -156,11 +158,11 @@ public final class MSVExpressionIterator implements Iterator<Expression> {
     // the current expression might be null if the desired type of expression was never found in the
     // tree
     if (mCurrentExpression != null) {
-      // if all tree is desired, or root, or if it is not element expression
+      // if all tree is desired, or startExpression, or if it is not element expression
       if (!mOnlyChildren
           || mAncestorsAndCurrent.size() == 1
           || !(mAncestorsAndCurrent.peek().mExp instanceof ElementExp)) {
-        List<Expression> children = (List<Expression>) mCurrentExpression.visit(mVisitor);
+        List<Expression> children = (List<Expression>) mCurrentExpression.visit(mChildVisitor);
         // see if we can go DOWN the tree
         if (children.size() > 0) {
           Expression nextExpCandidate = children.get(0);
@@ -176,14 +178,14 @@ public final class MSVExpressionIterator implements Iterator<Expression> {
 
       // if you could not get deeper, but you can go up
       // if there was no first child for the next expression and still some parent not being the
-      // root
+      // startExpression
       while (nextExpression == null && mAncestorsAndCurrent.size() > 1) {
         // go one up the stack
         UniqueAncestor uniqueAncestor = mAncestorsAndCurrent.pop();
         // get the new parent
         Expression parent = mAncestorsAndCurrent.peek().mExp;
         // to get the siblings
-        List<Expression> siblings = (List<Expression>) parent.visit(mVisitor);
+        List<Expression> siblings = (List<Expression>) parent.visit(mChildVisitor);
         // get the unvisted sibling index
         final int nextSiblingIndex = uniqueAncestor.mSiblingIndex + 1;
         if (nextSiblingIndex < siblings.size()) {
