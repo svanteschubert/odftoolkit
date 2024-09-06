@@ -24,6 +24,7 @@
 package org.odftoolkit.odfdom.doc;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.logging.Level;
@@ -314,10 +315,11 @@ public class OdfTextDocument extends OdfDocument {
    * document like paragraphs, headings, tables or lists.
    *
    * @return content root, representing the office:text tag
-   * @throws Exception if the file DOM could not be created.
+   * @throws org.xml.sax.SAXException when the XML of the content.xml can not be read
+   * @throws java.io.IOException when the XML of the content.xml can not be accessed
    */
   @Override
-  public OfficeTextElement getContentRoot() throws Exception {
+  public OfficeTextElement getContentRoot() throws SAXException, IOException {
     return super.getContentRoot(OfficeTextElement.class);
   }
 
@@ -326,9 +328,10 @@ public class OdfTextDocument extends OdfDocument {
    *
    * @param text
    * @return the new paragraph
-   * @throws Exception if the file DOM could not be created.
+   * @throws org.xml.sax.SAXException when the XML of the content.xml can not be read
+   * @throws java.io.IOException when the XML of the content.xml can not be accessed
    */
-  public OdfTextParagraph newParagraph(String text) throws Exception {
+  public OdfTextParagraph newParagraph(String text) throws SAXException, IOException {
     OdfTextParagraph para = newParagraph();
     para.addContent(text);
     return para;
@@ -338,9 +341,10 @@ public class OdfTextDocument extends OdfDocument {
    * Creates a new paragraph
    *
    * @return The new paragraph
-   * @throws Exception if the file DOM could not be created.
+   * @throws org.xml.sax.SAXException when the XML of the content.xml can not be read
+   * @throws java.io.IOException when the XML of the content.xml can not be accessed
    */
-  public OdfTextParagraph newParagraph() throws Exception {
+  public OdfTextParagraph newParagraph() throws SAXException, IOException {
     OfficeTextElement odfText = getContentRoot();
     return (OdfTextParagraph) odfText.newTextPElement();
   }

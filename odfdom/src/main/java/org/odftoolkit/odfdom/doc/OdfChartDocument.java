@@ -24,6 +24,7 @@
 package org.odftoolkit.odfdom.doc;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import org.odftoolkit.odfdom.dom.element.office.OfficeChartElement;
 import org.odftoolkit.odfdom.pkg.MediaType;
@@ -163,10 +164,11 @@ public class OdfChartDocument extends OdfDocument {
    * Get the content root of a chart document.
    *
    * @return content root, representing the office:chart tag
-   * @throws Exception if the file DOM could not be created.
+   * @throws org.xml.sax.SAXException when the XML of the content.xml can not be read
+   * @throws java.io.IOException when the XML of the content.xml can not be accessed
    */
   @Override
-  public OfficeChartElement getContentRoot() throws Exception {
+  public OfficeChartElement getContentRoot() throws SAXException, IOException {
     return super.getContentRoot(OfficeChartElement.class);
   }
   /**

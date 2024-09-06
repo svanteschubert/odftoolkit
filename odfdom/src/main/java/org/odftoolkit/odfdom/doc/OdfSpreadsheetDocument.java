@@ -24,6 +24,7 @@
 package org.odftoolkit.odfdom.doc;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import org.odftoolkit.odfdom.doc.table.OdfTable;
@@ -166,7 +167,7 @@ public class OdfSpreadsheetDocument extends OdfDocument {
    * @throws Exception if the file DOM could not be created.
    */
   @Override
-  public OfficeSpreadsheetElement getContentRoot() throws Exception {
+  public OfficeSpreadsheetElement getContentRoot() throws SAXException, IOException {
     return super.getContentRoot(OfficeSpreadsheetElement.class);
   }
 

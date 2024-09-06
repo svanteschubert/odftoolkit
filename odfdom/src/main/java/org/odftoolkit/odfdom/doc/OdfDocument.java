@@ -24,6 +24,7 @@
 package org.odftoolkit.odfdom.doc;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -732,7 +733,7 @@ public abstract class OdfDocument extends OdfSchemaDocument {
    * @throws Exception if the file DOM could not be created.
    */
   @SuppressWarnings("unchecked")
-  <T extends OdfElement> T getContentRoot(Class<T> clazz) throws Exception {
+  <T extends OdfElement> T getContentRoot(Class<T> clazz) throws SAXException, IOException {
     OdfElement contentRoot = getContentDom().getRootElement();
     OfficeBodyElement contentBody =
         OdfElement.findFirstChildNode(OfficeBodyElement.class, contentRoot);
@@ -752,9 +753,8 @@ public abstract class OdfDocument extends OdfSchemaDocument {
    * <p>You may prefer to use the getContentRoot methods of subclasses of OdfDocument.
    *
    * @return the child element of office:body, e.g. office:text for text docs
-   * @throws Exception if the file DOM could not be created.
    */
-  public OdfElement getContentRoot() throws Exception {
+  public OdfElement getContentRoot() throws SAXException, IOException {
     return getContentRoot(OdfElement.class);
   }
 

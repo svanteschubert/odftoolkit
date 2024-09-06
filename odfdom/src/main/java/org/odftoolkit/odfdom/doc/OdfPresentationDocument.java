@@ -201,10 +201,11 @@ public class OdfPresentationDocument extends OdfDocument {
    * Get the content root of a presentation document.
    *
    * @return content root, representing the office:presentation tag
-   * @throws Exception if the file DOM could not be created.
+   * @throws org.xml.sax.SAXException when the XML of the content.xml can not be read
+   * @throws java.io.IOException when the XML of the content.xml can not be accessed
    */
   @Override
-  public OfficePresentationElement getContentRoot() throws Exception {
+  public OfficePresentationElement getContentRoot() throws IOException, SAXException  {
     return super.getContentRoot(OfficePresentationElement.class);
   }
 

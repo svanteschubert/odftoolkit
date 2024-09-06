@@ -24,6 +24,7 @@
 package org.odftoolkit.odfdom.doc;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import org.odftoolkit.odfdom.dom.element.office.OfficeDrawingElement;
 import org.odftoolkit.odfdom.pkg.MediaType;
@@ -158,10 +159,11 @@ public class OdfGraphicsDocument extends OdfDocument {
    * Get the content root of a graphics document.
    *
    * @return content root, representing the office:drawing tag
-   * @throws Exception if the file DOM could not be created.
+   * @throws org.xml.sax.SAXException when the XML of the content.xml can not be read
+   * @throws java.io.IOException when the XML of the content.xml can not be accessed
    */
   @Override
-  public OfficeDrawingElement getContentRoot() throws Exception {
+  public OfficeDrawingElement getContentRoot() throws SAXException, IOException  {
     return super.getContentRoot(OfficeDrawingElement.class);
   }
 
