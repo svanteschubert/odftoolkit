@@ -30,7 +30,8 @@
         <relativePath />
     </parent>
     <properties>
-        <javadoc.bottom>Copyright © {inceptionYear}–2018 Apache Software Foundation; Copyright © 2018–{currentYear} {organizationName}. All rights reserved.</javadoc.bottom>
+        <currentYear>2026</currentYear>
+        <javadoc.bottom>Copyright © {inceptionYear}–2018 Apache Software Foundation; Copyright © 2018–${currentYear} {organizationName}. All rights reserved.</javadoc.bottom>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- explicitly setting JDK version for compiler source & target -->
         <jdk.version>11</jdk.version>
