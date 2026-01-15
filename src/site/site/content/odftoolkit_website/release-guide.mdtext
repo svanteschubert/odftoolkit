@@ -23,11 +23,11 @@ Something equivalent to:
     </server>
    ```
 
-2. **Install GNU PG**</br>
+1. **Install GNU PG**</br>
 GNU PG is necessary to sign the packages of our release.
 </br>Install for your OS. [See details in tutorial 'publish your artifacts to Maven'](https://dzone.com/articles/publish-your-artifacts-to-maven-central)
 
-3. **Configure GNU PG**</br>Add your GNU credentials (and you might as well your GIT credentials) to your local [&lt;USER_HOME&gt;/.m2/settings.xml](https://maven.apache.org/settings.html).
+2. **Configure GNU PG**</br>Add your GNU credentials (and you might as well your GIT credentials) to your local [&lt;USER_HOME&gt;/.m2/settings.xml](https://maven.apache.org/settings.html).
 
 **NOTE:**</br>
 See [our example settings.xml](docs/settings-example.xml) and search & replace the placeholders starting with 'YOUR_'.
@@ -57,8 +57,8 @@ There are two kinds of releases a quick SNAPSHOT release, where the SNAPSHOT wil
 
     ```shell
     ./README.md
-    ./src/site/content/odftoolkit_website/ReleaseNotes.mdtext
-    ./src/site/content/odftoolkit_website/downloads.mdtext
+    ./src/site/content/odftoolkit_website/ReleaseNotes.mdtext # the script ./src/site/show-milestone-issues.sh lists the issues of the release milestone as markdown
+    ./src/site/content/odftoolkit_website/downloads.mdtext # beware not only search/replace the version#, but copy the latest version into the previous section
     ./src/site/site/content/odftoolkit_website/javadoc.mdtext # the older API exists only on odftoolkit.org (but we keep API DIFF files here, too!)
     ./docs/api/index.html # one of a very few HTML files to be edited - insertion of version#!
     ```

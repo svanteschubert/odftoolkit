@@ -32,25 +32,31 @@ import javax.lang.model.element.Element;
 import jdk.javadoc.doclet.Taglet;
 
 /**
- * This class implements a custom taglet to the map the ODF element to the declaration of the ODF
+ * This class implements a custom taglet to the map the ODF element to the
+ * declaration of the ODF
  * element in the OpenDocument specification.
  *
- * <p>The position of the OpenDocument specification in HTML can be provided using an environment
- * variable or java system property, while the system property overrides the environment variable.
- * In case nothing is been a default path within the JavaDoc resources directory is being used.
+ * <p>
+ * The position of the OpenDocument specification in HTML can be provided using
+ * an environment
+ * variable or java system property, while the system property overrides the
+ * environment variable.
+ * In case nothing is been a default path within the JavaDoc resources directory
+ * is being used.
  *
- * <p>For example the taglet <code>{&#64;odf.element text:span}</code> would be resolved without
- * variable settings to <code>JAVA_DOC_BASE/resources/OpenDocument-v1.2-part1.html#element-text_span
+ * <p>
+ * For example the taglet <code>{&#64;odf.element text:span}</code> would be
+ * resolved without
+ * variable settings to
+ * <code>JAVA_DOC_BASE/resources/OpenDocument-v1.2-part1.html#element-text_span
  * </code> .
  */
 public class OdfElementTaglet implements Taglet {
 
   private static final Logger LOG = Logger.getLogger(OdfElementTaglet.class.getName());
   private static final String NAME = "odf.element";
-  private static final String ODF_SPEC_PART1_PATH =
-      "../../../../../../resources/OpenDocument-v1.2-part1.html";
-  private static final String ODF_SPEC_PART3_PATH =
-      "../../../../../resources/OpenDocument-v1.2-part3.html";
+  private static final String ODF_SPEC_PART1_PATH = "../../../../../../resources/OpenDocument-v1.2-part1.html";
+  private static final String ODF_SPEC_PART3_PATH = "../../../../../resources/OpenDocument-v1.2-part3.html";
   private static String mOdfSpecPart1Path = null;
   private static String mOdfSpecPart3Path = null;
   private static Set<String> mNS_IN_PART3 = new HashSet<>();
@@ -167,7 +173,8 @@ public class OdfElementTaglet implements Taglet {
   }
 
   /**
-   * Given the <code>Tag</code> representation of this custom tag, return its string representation.
+   * Given the <code>Tag</code> representation of this custom tag, return its
+   * string representation.
    */
   @Override
   public String toString(List<? extends DocTree> tags, Element element) {
@@ -194,7 +201,12 @@ public class OdfElementTaglet implements Taglet {
 
   @Override
   public Set<Location> getAllowedLocations() {
-    throw new UnsupportedOperationException(
-        "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
+    return java.util.EnumSet.of(
+        Location.FIELD,
+        Location.METHOD,
+        Location.TYPE,
+        Location.PACKAGE,
+        Location.CONSTRUCTOR,
+        Location.OVERVIEW);
   }
 }

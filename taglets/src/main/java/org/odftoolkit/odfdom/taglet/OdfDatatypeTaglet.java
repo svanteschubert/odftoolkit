@@ -31,14 +31,21 @@ import javax.lang.model.element.Element;
 import jdk.javadoc.doclet.Taglet;
 
 /**
- * This class implements a custom taglet to the map the ODF datatype to the declaration of the ODF
+ * This class implements a custom taglet to the map the ODF datatype to the
+ * declaration of the ODF
  * datatype in the OpenDocument specification.
  *
- * <p>The position of the OpenDocument specification in HTML can be provided using an environment
- * variable or java system property, while the system property overrides the environment variable.
- * In case nothing is been a default path within the JavaDoc resources directory is being used.
+ * <p>
+ * The position of the OpenDocument specification in HTML can be provided using
+ * an environment
+ * variable or java system property, while the system property overrides the
+ * environment variable.
+ * In case nothing is been a default path within the JavaDoc resources directory
+ * is being used.
  *
- * <p>For example the taglet <code>{&#64;odf.datatype countryCode}</code> would be resolved without
+ * <p>
+ * For example the taglet <code>{&#64;odf.datatype countryCode}</code> would be
+ * resolved without
  * variable settings to <code>
  * JAVA_DOC_BASE/resources/OpenDocument-v1.2-part1.html#datatype-countryCode</code>.
  */
@@ -49,7 +56,8 @@ public class OdfDatatypeTaglet implements Taglet {
   private static final String ODF_SPEC_PATH = "../../../../resources/OpenDocument-v1.2-part1.html";
   private static String mOdfSpecPath = null;
 
-  /* FINDING THE ABSOLUTE PATH TO THE ODF SPEC IN HTML:
+  /*
+   * FINDING THE ABSOLUTE PATH TO THE ODF SPEC IN HTML:
    * 1) Try to get the odfSpecPath from the Java System variable (ODF_SPEC_PATH)
    * 2) Try to get the odfSpecPath from the environemnt variable (ODF_SPEC_PATH)
    * 3) If both not worked, use the default path
@@ -130,7 +138,8 @@ public class OdfDatatypeTaglet implements Taglet {
   }
 
   /**
-   * Given the <code>Tag</code> representation of this custom tag, return its string representation.
+   * Given the <code>Tag</code> representation of this custom tag, return its
+   * string representation.
    *
    * @return the string representation of the custom tag
    */
@@ -144,12 +153,17 @@ public class OdfDatatypeTaglet implements Taglet {
   }
 
   public boolean inType() {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return true;
   }
 
   @Override
   public Set<Location> getAllowedLocations() {
-    throw new UnsupportedOperationException(
-        "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
+    return java.util.EnumSet.of(
+        Location.FIELD,
+        Location.METHOD,
+        Location.TYPE,
+        Location.PACKAGE,
+        Location.CONSTRUCTOR,
+        Location.OVERVIEW);
   }
 }
