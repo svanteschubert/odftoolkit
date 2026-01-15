@@ -114,37 +114,67 @@ public class OdfAttributeTaglet implements Taglet {
     }
   }
 
+  /**
+   * Creates a new OdfAttributeTaglet.
+   */
+  public OdfAttributeTaglet() {
+  }
+
   /** @return the name of this custom tag. */
   public String getName() {
     return NAME;
   }
 
-  /** @return true since this tag can be used in a field doc comment */
+  /**
+   * Check if this tag can be used in a field doc comment.
+   *
+   * @return true since this tag can be used in a field doc comment
+   */
   public boolean inField() {
     return true;
   }
 
-  /** @return true since this tag can be used in a constructor doc comment */
+  /**
+   * Check if this tag can be used in a constructor doc comment.
+   *
+   * @return true since this tag can be used in a constructor doc comment
+   */
   public boolean inConstructor() {
     return true;
   }
 
-  /** @return true since this tag can be used in a method doc comment */
+  /**
+   * Check if this tag can be used in a method doc comment.
+   *
+   * @return true since this tag can be used in a method doc comment
+   */
   public boolean inMethod() {
     return true;
   }
 
-  /** @return true since this tag can be used in an overview doc comment */
+  /**
+   * Check if this tag can be used in an overview doc comment.
+   *
+   * @return true since this tag can be used in an overview doc comment
+   */
   public boolean inOverview() {
     return true;
   }
 
-  /** @return true since this tag can be used in a package doc comment */
+  /**
+   * Check if this tag can be used in a package doc comment.
+   *
+   * @return true since this tag can be used in a package doc comment
+   */
   public boolean inPackage() {
     return true;
   }
 
-  /** @return true since this */
+  /**
+   * Check if this tag can be used in a type doc comment.
+   *
+   * @return true since this tag can be used in a type doc comment
+   */
   public boolean inType() {
     return true;
   }
