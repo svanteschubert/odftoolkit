@@ -234,7 +234,7 @@
         </snapshotRepository>
         <repository>
             <id>central</id>
-            <url>https://repo1.maven.org/maven2/</url>
+            <url>https://central.sonatype.com/repository/maven-releases</url>
         </repository>
         <!-- not used for deployment but only for site:stage goal -->
         <site>
@@ -438,20 +438,7 @@
                         </excludes>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>3.1.4</version>
-                    <executions>
-                        <execution>
-                            <!-- any other ID will cause the deployment to happen twice -->
-                            <id>default-deploy</id>
-                            <phase>deploy</phase>
-                            <goals>
-                                <goal>deploy</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
@@ -482,6 +469,8 @@
                   <extensions>true</extensions>
                   <configuration>
                     <publishingServerId>central</publishingServerId>
+                    <autoPublish>false</autoPublish>
+                    <waitUntil>validated</waitUntil>
                   </configuration>
                 </plugin>
                 <plugin>
@@ -581,6 +570,19 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <!-- Skip the default deploy plugin, use central-publishing-maven-plugin instead -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <!-- Use Sonatype Central Publishing for Maven Central releases -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+            </plugin>
 
             <plugin>
                 <groupId>org.jacoco</groupId>
